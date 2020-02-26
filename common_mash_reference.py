@@ -93,17 +93,18 @@ def find_common_reference(folder):
     .sort_values(by=['counts'], ascending=False).reset_index(drop = True)
     
     gfc_complete = ('_').join(counter_df_complete.iloc[0]['query-ID'].split('_')[0:2])
+    gfc_description = re.sub(r'[ ]?\[.{1,9}\][ ]?','',counter_df_complete.iloc[0]['query-comment'])
         
     counter_df_complete.to_csv(output_complete_tab, sep='\t', index=False)
     counter_df.to_csv(output_all_tab, sep='\t', index=False)
 
-    return gfc_complete
+    return gfc_complete, gfc_description
 
 def gcf_to_ftp_path(gcf_value):
     try:
         dfrefseq = pd.read_csv('ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt', skiprows=0, sep='\t', header=1)
     except:
-        print('There was a problem obtaining assembly_summary.txt\n \
+        logger.info('There was a problem obtaining assembly_summary.txt\n \
         Check: ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt')
         sys.exit(1)
     ftp_path = dfrefseq['ftp_path'][dfrefseq['# assembly_accession'] == gcf_value]
@@ -116,11 +117,11 @@ def download_gcf (ftp_address, output_dir, all_data=False ):
     output_dir = os.path.abspath(output_dir)
     
     if not os.path.exists(output_dir):
-        print("path " + output_dir + " doesn't exist and will be created")
+        logger.info("path " + output_dir + " doesn't exist and will be created")
         try:
             os.mkdir(output_dir)
         except:
-            print("Folder " + output_dir + "can't be created")
+            logger.info("Folder " + output_dir + "can't be created")
             sys.exit(1)
     
     ftp = FTP('ftp.ncbi.nlm.nih.gov')
@@ -132,20 +133,20 @@ def download_gcf (ftp_address, output_dir, all_data=False ):
     ftp_folder = ftp_address.split('/')[-1]
     assembly_file = ftp_folder + '_genomic.fna.gz'
     
-    # Print out the files
+    # logger.info out the files
     if all_data == False:
         for file in files:
             if file == assembly_file:
                 local_path = os.path.join(output_dir, file)
                 with open(local_path, 'wb') as f:
-                    print("Downloading.." + file)
+                    logger.info("Downloading.." + file)
                     #ftp.retrbinary("RETR " + file ,open(output_dir + file, 'wb').write)
                     ftp.retrbinary('RETR ' + file, f.write)
     else:
         for file in files:
             local_path = os.path.join(output_dir, file)
             with open(local_path, 'wb') as f:
-                print("Downloading.." + file)
+                logger.info("Downloading.." + file)
                 #ftp.retrbinary("RETR " + file ,open(output_dir + file, 'wb').write)
                 ftp.retrbinary('RETR ' + file, f.write)
 
@@ -167,7 +168,7 @@ def main():
         return arguments
 
     args = get_arguments()
-    print(args)
+    
 
     output_dir = os.path.abspath(args.output)
     input_dir = os.path.abspath(args.input_dir)
@@ -176,7 +177,7 @@ def main():
 
     #LOGGING
     #Create log file with date and time
-    right_now = str(datetime.datetime.now())
+    right_now = str(datetime.date.today())
     right_now_full = "_".join(right_now.split(" "))
 
     log_filename = 'mash_reference' + "_" + right_now_full + ".log"
@@ -198,11 +199,15 @@ def main():
     logger.addHandler(stream_handler)
     logger.addHandler(file_handler)
 
+    
     #####################START PIPELINE################
+
+    logger.info(args)
+
     #RETRIEVE COMMON REFERENCE
-    print('Obtaining common reference')
-    common_reference = find_common_reference(input_dir)
-    print('common complete reference is: ' + common_reference)
+    logger.info('Obtaining common reference')
+    common_reference, common_description = find_common_reference(input_dir)
+    logger.info('Common complete reference is: ' + common_reference + ': ' + common_description)
     #USE TO EXTRACT FTP PATH
     ftp_path = gcf_to_ftp_path(common_reference)
     #EXTRACT FILES IN THE DESIRED FOLDER
