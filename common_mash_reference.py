@@ -12,6 +12,8 @@ import datetime
 import pandas as pd
 from ftplib import FTP
 
+pd.set_option('display.max_colwidth', -1)
+
 logger = logging.getLogger()
 
 """
@@ -46,10 +48,12 @@ def check_create_dir(path):
 def return_best_complete_match(screen_file):
     df = pd.read_csv(screen_file, sep='\t', names=['identity', 'shared-hashes', 'median-multiplicity', 'p-value', 'query-ID', 'query-comment'])
     df_complete = df[df['query-comment'].str.contains('complete genome')]
-    df_complete = df[~df['query-comment'].str.contains('phague')]
-    df_complete = df[~df['query-comment'].str.contains('shotgun')]
+    df_complete = df_complete[~df_complete['query-comment'].str.contains(' phage')]
+    df_complete = df_complete[~df_complete['query-comment'].str.contains(' Phage')]
+    df_complete = df_complete[~df_complete['query-comment'].str.contains('shotgun')]
     df_complete = df_complete.sort_values(by=['identity'], ascending=False)
     df_complete.reset_index(inplace=True)
+    logger.debug(df_complete.head())
     return df_complete.iloc[0][['query-ID','query-comment']].tolist()
 
 def return_best_match(screen_file):
@@ -57,6 +61,7 @@ def return_best_match(screen_file):
     #df_complete = df[df['query-comment'].str.contains('complete genome')]
     df_complete = df.sort_values(by=['identity'], ascending=False)
     df_complete.reset_index(inplace=True)
+    logger.debug(df_complete.head())
     return df_complete.iloc[0][['query-ID','query-comment']].tolist()
 
 def find_common_reference(folder):
@@ -76,11 +81,16 @@ def find_common_reference(folder):
         for name in files:
             if name.endswith("screen.tab"):
                 filename = os.path.join(root, name)
-                best_match_complete = return_best_complete_match(filename)
-                counter_record_complete.loc[len(counter_record_complete)] = best_match_complete
-                
-                best_match = return_best_match(filename)
-                counter_record_all.loc[len(counter_record_all)] = best_match
+                try:
+                    best_match_complete = return_best_complete_match(filename)
+                    counter_record_complete.loc[len(counter_record_complete)] = best_match_complete
+                except:
+                    logger.debug("Format in " + name + "incorrect")
+                try:
+                    best_match = return_best_match(filename)
+                    counter_record_all.loc[len(counter_record_all)] = best_match
+                except:
+                    logger.debug("Format in " + name + "incorrect")
     #pd.rename_axis and reset_index turn count_values() into a dataframe
     #https://stackoverflow.com/questions/47136436/python-pandas-convert-value-counts-output-to-dataframe
     #df = value_counts.rename_axis('unique_values').to_frame('counts')
@@ -172,7 +182,7 @@ def main():
 
     output_dir = os.path.abspath(args.output)
     input_dir = os.path.abspath(args.input_dir)
-
+    
     check_create_dir(output_dir)
 
     #LOGGING
