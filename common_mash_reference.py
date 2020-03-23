@@ -12,7 +12,7 @@ import datetime
 import pandas as pd
 from ftplib import FTP
 
-pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_colwidth', None)
 
 logger = logging.getLogger()
 
