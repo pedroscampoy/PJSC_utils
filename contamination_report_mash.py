@@ -45,11 +45,16 @@ def check_create_dir(path):
 
 def return_best_matches(screen_file):
     df = pd.read_csv(screen_file, sep='\t', names=['identity', 'shared-hashes', 'median-multiplicity', 'p-value', 'query-ID', 'query-comment'])
-    df = df[~df['query-comment'].str.contains(' phage')]
-    df = df[~df['query-comment'].str.contains(' Phage')]
-    df = df.sort_values(by=['identity'], ascending=False)
-    df.reset_index(inplace=True)
-    return df[df.identity > 0.9]
+    if df.shape[1] == 6:
+        df = df[~df['query-comment'].str.contains(' phage')]
+        df = df[~df['query-comment'].str.contains(' Phage')]
+        df = df[~df['query-comment'].str.contains('Bacteriophage')]
+        df = df.sort_values(by=['identity'], ascending=False)
+        df.reset_index(inplace=True)
+        return df[df.identity > 0.9]
+    else:
+        logger.info("Wrong mash file:")
+        logger.info(screen_file)
 
 def extract_species(df_line):
     split_query = df_line['query-comment'].split(' ')
@@ -63,7 +68,10 @@ def report_contamination(df_mash):
     Dependencies:   -df_mash
                     -extract_species(df_line)
     '''
-    main_species = extract_species(df_mash.iloc[0])
+    try:
+        main_species = extract_species(df_mash.iloc[0])
+    except:
+        main_species = "NO REPRESENTATIVE ESPECIES"
     contamination_report = "Main species: " + main_species + "\n"
     if df_mash.shape[0] > 1:
         for _, data_row in df_mash.iloc[1:].iterrows():
