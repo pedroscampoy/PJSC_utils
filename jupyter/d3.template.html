@@ -9,11 +9,6 @@
             overflow: hidden;
         }
 
-        circle {
-            fill: red;
-            opacity: 0.3;
-        }
-
         text {
             font-family: sans-serif;
         }
@@ -40,6 +35,19 @@
         .title{
             font-size: 3.2em;
             fill: #635F5D;
+        }
+        
+        div.tooltip {
+            position: absolute;
+            text-align: center;
+            width: auto;
+            height: 28px;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
         }
         </style>
         <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -137,14 +145,16 @@
             .data(data)
             .enter()
             .append('circle')
+            .attr('opacity', 0.5)
+            .attr('fill', function(d) { return (yValue(d) > 50 ? "cyan" : "salmon"); })
             .attr('cy', d => yScale(yValue(d)))
             .attr('cx', d => xScale(xValue(d)))
             .attr('r', circleRadius)
             .on("mouseover", function(d) {
                 div.transition()
-                    .duration(200)
+                    .duration(100)
                     .style("opacity", .9);
-                div	.html(formatTime(d.date) + "<br/>"  + d.close)
+                div.html('POS: ' + xValue(d) + "<br/>"  + 'FREQ: ' + yValue(d))
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
                 })
@@ -152,12 +162,12 @@
                 div.transition()
                     .duration(500)
                     .style("opacity", 0)
-                });
+            });
 
 
         };
         
-     const data = [{'POS': 49, 'FREQ': 3.88}, {'POS': 394, 'FREQ': 4.26}, {'POS': 411, 'FREQ': 4.17}, {'POS': 424, 'FREQ': 5.77}, {'POS': 456, 'FREQ': 2.06}, {'POS': 517, 'FREQ': 2.5}, {'POS': 627, 'FREQ': 2.83}, {'POS': 1875, 'FREQ': 57.08}, {'POS': 2750, 'FREQ': 2.49}, {'POS': 2756, 'FREQ': 2.11}, {'POS': 2905, 'FREQ': 2.25}, {'POS': 2906, 'FREQ': 3.73}, {'POS': 2934, 'FREQ': 2.18}, {'POS': 3003, 'FREQ': 2.26}, {'POS': 3151, 'FREQ': 2.59}, {'POS': 3641, 'FREQ': 5.71}, {'POS': 3737, 'FREQ': 5.71}, {'POS': 4648, 'FREQ': 4.0}, {'POS': 5090, 'FREQ': 25.0}, {'POS': 5185, 'FREQ': 16.67}, {'POS': 5445, 'FREQ': 6.06}, {'POS': 5497, 'FREQ': 30.3}, {'POS': 5512, 'FREQ': 17.5}, {'POS': 6324, 'FREQ': 4.65}, {'POS': 6335, 'FREQ': 6.98}, {'POS': 6466, 'FREQ': 3.39}, {'POS': 6616, 'FREQ': 21.52}, {'POS': 6696, 'FREQ': 2.11}, {'POS': 7918, 'FREQ': 2.29}, {'POS': 8312, 'FREQ': 7.67}, {'POS': 8323, 'FREQ': 4.29}, {'POS': 8359, 'FREQ': 2.67}, {'POS': 8362, 'FREQ': 2.56}, {'POS': 8376, 'FREQ': 4.88}, {'POS': 8399, 'FREQ': 2.44}, {'POS': 8464, 'FREQ': 2.27}, {'POS': 8562, 'FREQ': 2.35}, {'POS': 8595, 'FREQ': 2.3}, {'POS': 8621, 'FREQ': 2.22}, {'POS': 8627, 'FREQ': 3.3}, {'POS': 8628, 'FREQ': 2.17}, {'POS': 8631, 'FREQ': 2.17}, {'POS': 8632, 'FREQ': 2.17}, {'POS': 8635, 'FREQ': 2.17}, {'POS': 9477, 'FREQ': 99.45}, {'POS': 9624, 'FREQ': 4.23}, {'POS': 9685, 'FREQ': 2.4}, {'POS': 9764, 'FREQ': 2.04}, {'POS': 9766, 'FREQ': 2.08}, {'POS': 10740, 'FREQ': 3.51}, {'POS': 11074, 'FREQ': 10.57}, {'POS': 11549, 'FREQ': 3.12}, {'POS': 11568, 'FREQ': 2.34}, {'POS': 12655, 'FREQ': 2.12}, {'POS': 12710, 'FREQ': 2.17}, {'POS': 13575, 'FREQ': 2.52}, {'POS': 14805, 'FREQ': 99.74}, {'POS': 15827, 'FREQ': 3.31}, {'POS': 17005, 'FREQ': 6.18}, {'POS': 17011, 'FREQ': 6.68}, {'POS': 17328, 'FREQ': 7.3}, {'POS': 17337, 'FREQ': 2.41}, {'POS': 19517, 'FREQ': 2.94}, {'POS': 19539, 'FREQ': 2.08}, {'POS': 19570, 'FREQ': 6.8}, {'POS': 19572, 'FREQ': 3.38}, {'POS': 19653, 'FREQ': 3.12}, {'POS': 19699, 'FREQ': 2.86}, {'POS': 19700, 'FREQ': 4.23}, {'POS': 19705, 'FREQ': 2.86}, {'POS': 19752, 'FREQ': 2.7}, {'POS': 19755, 'FREQ': 2.67}, {'POS': 19778, 'FREQ': 4.0}, {'POS': 19791, 'FREQ': 2.7}, {'POS': 19983, 'FREQ': 2.26}, {'POS': 21507, 'FREQ': 3.7}, {'POS': 22461, 'FREQ': 6.9}, {'POS': 22473, 'FREQ': 6.9}, {'POS': 22509, 'FREQ': 6.06}, {'POS': 22897, 'FREQ': 2.19}, {'POS': 23122, 'FREQ': 4.2}, {'POS': 23523, 'FREQ': 4.69}, {'POS': 23788, 'FREQ': 8.16}, {'POS': 23789, 'FREQ': 7.61}, {'POS': 24145, 'FREQ': 2.45}, {'POS': 24153, 'FREQ': 2.0}, {'POS': 24277, 'FREQ': 2.01}, {'POS': 24613, 'FREQ': 11.89}, {'POS': 24617, 'FREQ': 2.52}, {'POS': 25651, 'FREQ': 2.6}, {'POS': 25716, 'FREQ': 5.13}, {'POS': 25979, 'FREQ': 99.16}, {'POS': 27506, 'FREQ': 2.54}, {'POS': 27509, 'FREQ': 3.63}, {'POS': 27691, 'FREQ': 2.22}, {'POS': 27703, 'FREQ': 2.25}, {'POS': 27729, 'FREQ': 2.35}, {'POS': 27744, 'FREQ': 2.5}, {'POS': 27766, 'FREQ': 2.47}, {'POS': 28144, 'FREQ': 99.86}, {'POS': 28657, 'FREQ': 99.5}, {'POS': 28863, 'FREQ': 99.37}, {'POS': 28985, 'FREQ': 3.86}, {'POS': 29019, 'FREQ': 6.59}, {'POS': 29035, 'FREQ': 2.71}, {'POS': 29388, 'FREQ': 2.02}, {'POS': 29452, 'FREQ': 2.02}, {'POS': 29475, 'FREQ': 2.0}, {'POS': 29500, 'FREQ': 2.0}, {'POS': 29518, 'FREQ': 2.02}];
+    const data = [{'POS': 49, 'FREQ': 3.88}, {'POS': 394, 'FREQ': 4.26}, {'POS': 411, 'FREQ': 4.17}, {'POS': 424, 'FREQ': 5.77}, {'POS': 456, 'FREQ': 2.06}, {'POS': 517, 'FREQ': 2.5}, {'POS': 627, 'FREQ': 2.83}, {'POS': 1875, 'FREQ': 57.08}, {'POS': 2750, 'FREQ': 2.49}, {'POS': 2756, 'FREQ': 2.11}, {'POS': 2905, 'FREQ': 2.25}, {'POS': 2906, 'FREQ': 3.73}, {'POS': 2934, 'FREQ': 2.18}, {'POS': 3003, 'FREQ': 2.26}, {'POS': 3151, 'FREQ': 2.59}, {'POS': 3641, 'FREQ': 5.71}, {'POS': 3737, 'FREQ': 5.71}, {'POS': 4648, 'FREQ': 4.0}, {'POS': 5090, 'FREQ': 25.0}, {'POS': 5185, 'FREQ': 16.67}, {'POS': 5445, 'FREQ': 6.06}, {'POS': 5497, 'FREQ': 30.3}, {'POS': 5512, 'FREQ': 17.5}, {'POS': 6324, 'FREQ': 4.65}, {'POS': 6335, 'FREQ': 6.98}, {'POS': 6466, 'FREQ': 3.39}, {'POS': 6616, 'FREQ': 21.52}, {'POS': 6696, 'FREQ': 2.11}, {'POS': 7918, 'FREQ': 2.29}, {'POS': 8312, 'FREQ': 7.67}, {'POS': 8323, 'FREQ': 4.29}, {'POS': 8359, 'FREQ': 2.67}, {'POS': 8362, 'FREQ': 2.56}, {'POS': 8376, 'FREQ': 4.88}, {'POS': 8399, 'FREQ': 2.44}, {'POS': 8464, 'FREQ': 2.27}, {'POS': 8562, 'FREQ': 2.35}, {'POS': 8595, 'FREQ': 2.3}, {'POS': 8621, 'FREQ': 2.22}, {'POS': 8627, 'FREQ': 3.3}, {'POS': 8628, 'FREQ': 2.17}, {'POS': 8631, 'FREQ': 2.17}, {'POS': 8632, 'FREQ': 2.17}, {'POS': 8635, 'FREQ': 2.17}, {'POS': 9477, 'FREQ': 99.45}, {'POS': 9624, 'FREQ': 4.23}, {'POS': 9685, 'FREQ': 2.4}, {'POS': 9764, 'FREQ': 2.04}, {'POS': 9766, 'FREQ': 2.08}, {'POS': 10740, 'FREQ': 3.51}, {'POS': 11074, 'FREQ': 10.57}, {'POS': 11549, 'FREQ': 3.12}, {'POS': 11568, 'FREQ': 2.34}, {'POS': 12655, 'FREQ': 2.12}, {'POS': 12710, 'FREQ': 2.17}, {'POS': 13575, 'FREQ': 2.52}, {'POS': 14805, 'FREQ': 99.74}, {'POS': 15827, 'FREQ': 3.31}, {'POS': 17005, 'FREQ': 6.18}, {'POS': 17011, 'FREQ': 6.68}, {'POS': 17328, 'FREQ': 7.3}, {'POS': 17337, 'FREQ': 2.41}, {'POS': 19517, 'FREQ': 2.94}, {'POS': 19539, 'FREQ': 2.08}, {'POS': 19570, 'FREQ': 6.8}, {'POS': 19572, 'FREQ': 3.38}, {'POS': 19653, 'FREQ': 3.12}, {'POS': 19699, 'FREQ': 2.86}, {'POS': 19700, 'FREQ': 4.23}, {'POS': 19705, 'FREQ': 2.86}, {'POS': 19752, 'FREQ': 2.7}, {'POS': 19755, 'FREQ': 2.67}, {'POS': 19778, 'FREQ': 4.0}, {'POS': 19791, 'FREQ': 2.7}, {'POS': 19983, 'FREQ': 2.26}, {'POS': 21507, 'FREQ': 3.7}, {'POS': 22461, 'FREQ': 6.9}, {'POS': 22473, 'FREQ': 6.9}, {'POS': 22509, 'FREQ': 6.06}, {'POS': 22897, 'FREQ': 2.19}, {'POS': 23122, 'FREQ': 4.2}, {'POS': 23523, 'FREQ': 4.69}, {'POS': 23788, 'FREQ': 8.16}, {'POS': 23789, 'FREQ': 7.61}, {'POS': 24145, 'FREQ': 2.45}, {'POS': 24153, 'FREQ': 2.0}, {'POS': 24277, 'FREQ': 2.01}, {'POS': 24613, 'FREQ': 11.89}, {'POS': 24617, 'FREQ': 2.52}, {'POS': 25651, 'FREQ': 2.6}, {'POS': 25716, 'FREQ': 5.13}, {'POS': 25979, 'FREQ': 99.16}, {'POS': 27506, 'FREQ': 2.54}, {'POS': 27509, 'FREQ': 3.63}, {'POS': 27691, 'FREQ': 2.22}, {'POS': 27703, 'FREQ': 2.25}, {'POS': 27729, 'FREQ': 2.35}, {'POS': 27744, 'FREQ': 2.5}, {'POS': 27766, 'FREQ': 2.47}, {'POS': 28144, 'FREQ': 99.86}, {'POS': 28657, 'FREQ': 99.5}, {'POS': 28863, 'FREQ': 99.37}, {'POS': 28985, 'FREQ': 3.86}, {'POS': 29019, 'FREQ': 6.59}, {'POS': 29035, 'FREQ': 2.71}, {'POS': 29388, 'FREQ': 2.02}, {'POS': 29452, 'FREQ': 2.02}, {'POS': 29475, 'FREQ': 2.0}, {'POS': 29500, 'FREQ': 2.0}, {'POS': 29518, 'FREQ': 2.02}];
     render(data)
     </script>
                 
