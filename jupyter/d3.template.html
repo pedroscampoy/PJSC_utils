@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Car Scatter plot</title>
+        <meta http-equiv="Access-Control-Allow-Origin" content="*"/>
+        <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        circle {
+            fill: red;
+            opacity: 0.3;
+        }
+
+        text {
+            font-family: sans-serif;
+        }
+
+        .tick text {
+            font-size: 1em;
+            fill: #635F5D;
+        }
+
+        .tick line{
+            stroke: #C0C0BB;
+        }
+
+        .xAxisLabel{
+            font-size: 4em;
+            fill: #8E8883;
+        }
+
+        .yAxisLabel{
+            font-size: 4em;
+            fill: #8E8883;
+        }
+
+        .title{
+            font-size: 3.2em;
+            fill: #635F5D;
+        }
+        </style>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+    </head>
+    <body>
+        <svg width="960" height="500"></svg>
+        <script>
+
+        const svg = d3.select('svg');
+        const width = svg.attr('width');
+        const height = svg.attr('height');
+
+        //data.forEach(element => console.log(element.population));
+        //data.forEach(d => d.population = d.population * 1000);
+        //console.log(data)
+        const render = data => {
+            const title = 'Allele frequency'
+            const xValue = d => d.POS;
+            const xAxisLabel = 'Position';
+            const yValue = d => d.FREQ;
+            const yAxisLabel = 'Frequency';
+            const circleRadius = 8;
+            
+            const margin = {top: 60, right: 40, bottom: 88, left: 150};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const xScale = d3.scaleLinear()
+                            .domain(d3.extent(data, xValue))
+                            .range([0, innerWidth])
+                            .nice();
+            
+            const yScale = d3.scaleLinear()
+                            .domain(d3.extent(data, yValue))
+                            .range([innerHeight, 0])
+                            .nice();
+
+            const yAxis = d3.axisLeft(yScale)
+                        .tickSize(-innerWidth)
+                        .tickPadding(15);
+
+            const xAxis = d3.axisBottom(xScale)
+                        .tickSize(-innerHeight)
+                        .tickPadding(15);
+
+            //to set axis
+            const g = svg.append('g')
+                        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+            
+            //Add labels and ticks to axes and remove some ticks
+            const yAxisG = g.append('g')
+                        .call(yAxis)
+
+            yAxisG.selectAll('.domain')
+                    .remove();
+
+            const xAxisG = g.append('g')
+                        .call(xAxis)
+                        .attr('transform', `translate(0, ${innerHeight})`);
+                    
+            xAxisG.select('.domain')
+                .remove();
+            
+            // Define the div for the tooltip
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            //Add x label
+            xAxisG.append('text')
+                .attr('class', 'xAxisLabel')
+                .attr('y',75)
+                .attr('x', innerWidth / 2)
+                .attr('fill', 'black')
+                .text(xAxisLabel);
+
+            //Add y label
+            yAxisG.append('text')
+                .attr('class', 'yAxisLabel')
+                .attr('y', -93)
+                .attr('x', - innerHeight / 2)
+                .attr('fill', 'black')
+                .attr('transform', `rotate(-90)`)
+                .attr('text-anchor', 'middle')
+                .text(yAxisLabel);
+
+            //Add title
+            g.append('text')
+                .attr('class', 'title')
+                .attr('y', -10)
+                .text(title);
+            
+            //Create elements
+            g.selectAll('circle')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('cy', d => yScale(yValue(d)))
+            .attr('cx', d => xScale(xValue(d)))
+            .attr('r', circleRadius)
+            .on("mouseover", function(d) {
+                div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                div	.html(formatTime(d.date) + "<br/>"  + d.close)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+                })
+            .on("mouseout", function(d) {
+                div.transition()
+                    .duration(500)
+                    .style("opacity", 0)
+                });
+
+
+        };
+        
+     const data = [{'POS': 49, 'FREQ': 3.88}, {'POS': 394, 'FREQ': 4.26}, {'POS': 411, 'FREQ': 4.17}, {'POS': 424, 'FREQ': 5.77}, {'POS': 456, 'FREQ': 2.06}, {'POS': 517, 'FREQ': 2.5}, {'POS': 627, 'FREQ': 2.83}, {'POS': 1875, 'FREQ': 57.08}, {'POS': 2750, 'FREQ': 2.49}, {'POS': 2756, 'FREQ': 2.11}, {'POS': 2905, 'FREQ': 2.25}, {'POS': 2906, 'FREQ': 3.73}, {'POS': 2934, 'FREQ': 2.18}, {'POS': 3003, 'FREQ': 2.26}, {'POS': 3151, 'FREQ': 2.59}, {'POS': 3641, 'FREQ': 5.71}, {'POS': 3737, 'FREQ': 5.71}, {'POS': 4648, 'FREQ': 4.0}, {'POS': 5090, 'FREQ': 25.0}, {'POS': 5185, 'FREQ': 16.67}, {'POS': 5445, 'FREQ': 6.06}, {'POS': 5497, 'FREQ': 30.3}, {'POS': 5512, 'FREQ': 17.5}, {'POS': 6324, 'FREQ': 4.65}, {'POS': 6335, 'FREQ': 6.98}, {'POS': 6466, 'FREQ': 3.39}, {'POS': 6616, 'FREQ': 21.52}, {'POS': 6696, 'FREQ': 2.11}, {'POS': 7918, 'FREQ': 2.29}, {'POS': 8312, 'FREQ': 7.67}, {'POS': 8323, 'FREQ': 4.29}, {'POS': 8359, 'FREQ': 2.67}, {'POS': 8362, 'FREQ': 2.56}, {'POS': 8376, 'FREQ': 4.88}, {'POS': 8399, 'FREQ': 2.44}, {'POS': 8464, 'FREQ': 2.27}, {'POS': 8562, 'FREQ': 2.35}, {'POS': 8595, 'FREQ': 2.3}, {'POS': 8621, 'FREQ': 2.22}, {'POS': 8627, 'FREQ': 3.3}, {'POS': 8628, 'FREQ': 2.17}, {'POS': 8631, 'FREQ': 2.17}, {'POS': 8632, 'FREQ': 2.17}, {'POS': 8635, 'FREQ': 2.17}, {'POS': 9477, 'FREQ': 99.45}, {'POS': 9624, 'FREQ': 4.23}, {'POS': 9685, 'FREQ': 2.4}, {'POS': 9764, 'FREQ': 2.04}, {'POS': 9766, 'FREQ': 2.08}, {'POS': 10740, 'FREQ': 3.51}, {'POS': 11074, 'FREQ': 10.57}, {'POS': 11549, 'FREQ': 3.12}, {'POS': 11568, 'FREQ': 2.34}, {'POS': 12655, 'FREQ': 2.12}, {'POS': 12710, 'FREQ': 2.17}, {'POS': 13575, 'FREQ': 2.52}, {'POS': 14805, 'FREQ': 99.74}, {'POS': 15827, 'FREQ': 3.31}, {'POS': 17005, 'FREQ': 6.18}, {'POS': 17011, 'FREQ': 6.68}, {'POS': 17328, 'FREQ': 7.3}, {'POS': 17337, 'FREQ': 2.41}, {'POS': 19517, 'FREQ': 2.94}, {'POS': 19539, 'FREQ': 2.08}, {'POS': 19570, 'FREQ': 6.8}, {'POS': 19572, 'FREQ': 3.38}, {'POS': 19653, 'FREQ': 3.12}, {'POS': 19699, 'FREQ': 2.86}, {'POS': 19700, 'FREQ': 4.23}, {'POS': 19705, 'FREQ': 2.86}, {'POS': 19752, 'FREQ': 2.7}, {'POS': 19755, 'FREQ': 2.67}, {'POS': 19778, 'FREQ': 4.0}, {'POS': 19791, 'FREQ': 2.7}, {'POS': 19983, 'FREQ': 2.26}, {'POS': 21507, 'FREQ': 3.7}, {'POS': 22461, 'FREQ': 6.9}, {'POS': 22473, 'FREQ': 6.9}, {'POS': 22509, 'FREQ': 6.06}, {'POS': 22897, 'FREQ': 2.19}, {'POS': 23122, 'FREQ': 4.2}, {'POS': 23523, 'FREQ': 4.69}, {'POS': 23788, 'FREQ': 8.16}, {'POS': 23789, 'FREQ': 7.61}, {'POS': 24145, 'FREQ': 2.45}, {'POS': 24153, 'FREQ': 2.0}, {'POS': 24277, 'FREQ': 2.01}, {'POS': 24613, 'FREQ': 11.89}, {'POS': 24617, 'FREQ': 2.52}, {'POS': 25651, 'FREQ': 2.6}, {'POS': 25716, 'FREQ': 5.13}, {'POS': 25979, 'FREQ': 99.16}, {'POS': 27506, 'FREQ': 2.54}, {'POS': 27509, 'FREQ': 3.63}, {'POS': 27691, 'FREQ': 2.22}, {'POS': 27703, 'FREQ': 2.25}, {'POS': 27729, 'FREQ': 2.35}, {'POS': 27744, 'FREQ': 2.5}, {'POS': 27766, 'FREQ': 2.47}, {'POS': 28144, 'FREQ': 99.86}, {'POS': 28657, 'FREQ': 99.5}, {'POS': 28863, 'FREQ': 99.37}, {'POS': 28985, 'FREQ': 3.86}, {'POS': 29019, 'FREQ': 6.59}, {'POS': 29035, 'FREQ': 2.71}, {'POS': 29388, 'FREQ': 2.02}, {'POS': 29452, 'FREQ': 2.02}, {'POS': 29475, 'FREQ': 2.0}, {'POS': 29500, 'FREQ': 2.0}, {'POS': 29518, 'FREQ': 2.02}];
+    render(data)
+    </script>
+                
+    </body>
+</html>

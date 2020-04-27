@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--https://bl.ocks.org/mapio/53fed7d84cd1812d6a6639ed7aa83868-->
+        <title>SNP to Network</title>
+        <style>
+        body {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        text {
+            font-size: 0.5em;
+        }
+
+        .node:hover {
+            stroke: black;
+        }
+
+        </style>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+    </head>
+    <body>
+        <svg id='viz'></svg>
+    </body>
+
+    <script>
+        
+        const svg = d3.select('svg');
+        
+        const width = document.body.clientWidth;
+        const height = document.body.clientHeight;
+
+        svg.attr('width', width)
+            .attr('height', height)
+            .append('rect')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('rx', 40)
+            .attr('fill', 'none');
+        
+        data = {
+            "nodes": [{'id': 'CP029217.1', 'group': 13},
+                {'id': 'LR134132.1', 'group': 14},
+                {'id': 'NZ_CM004622.1', 'group': 5},
+                {'id': 'NZ_CM017034.1', 'group': 18},
+                {'id': 'NZ_CM017091.1', 'group': 5},
+                {'id': 'NZ_CM017179.1', 'group': 5},
+                {'id': 'NZ_CP011334.1', 'group': 6},
+                {'id': 'NZ_CP015133.1', 'group': 12},
+                {'id': 'NZ_CP015501.1', 'group': 7},
+                {'id': 'NZ_CP018443.1', 'group': 1},
+                {'id': 'NZ_CP020850.1', 'group': 20},
+                {'id': 'NZ_CP023947.1', 'group': 4},
+                {'id': 'NZ_CP024516.1', 'group': 4},
+                {'id': 'NZ_CP026852.1', 'group': 10},
+                {'id': 'NZ_CP027151.1', 'group': 19},
+                {'id': 'NZ_CP027154.1', 'group': 2},
+                {'id': 'NZ_CP027156.1', 'group': 7},
+                {'id': 'NZ_CP027163.1', 'group': 11},
+                {'id': 'NZ_CP028818.1', 'group': 1},
+                {'id': 'NZ_CP029222.1', 'group': 15},
+                {'id': 'NZ_CP031580.1', 'group': 8},
+                {'id': 'NZ_CP034282.1', 'group': 4},
+                {'id': 'NZ_CP035347.1', 'group': 9},
+                {'id': 'NZ_CP035364.1', 'group': 9},
+                {'id': 'NZ_CP036325.1', 'group': 17},
+                {'id': 'NZ_CP041935.1', 'group': 7},
+                {'id': 'NZ_CP042869.1', 'group': 8},
+                {'id': 'NZ_CP044032.1', 'group': 1},
+                {'id': 'NZ_CP045282.1', 'group': 3},
+                {'id': 'NZ_LR025100.1', 'group': 1},
+                {'id': 'NZ_LT904874.1', 'group': 16},
+                {'id': 'WMHT01000002.1', 'group': 4},
+                {'id': 'NODE_62', 'group': 0},
+                {'id': 'NODE_58', 'group': 0},
+                {'id': 'NODE_36', 'group': 0},
+                {'id': 'NODE_32', 'group': 0},
+                {'id': 'NODE_33', 'group': 0},
+                {'id': 'NODE_44', 'group': 0},
+                {'id': 'NODE_61', 'group': 0},
+                {'id': 'NODE_41', 'group': 0},
+                {'id': 'NODE_37', 'group': 0},
+                {'id': 'NODE_34', 'group': 0},
+                {'id': 'NODE_60', 'group': 0},
+                {'id': 'NODE_46', 'group': 0},
+                {'id': 'NODE_42', 'group': 0},
+                {'id': 'NODE_35', 'group': 0},
+                {'id': 'NODE_59', 'group': 0},
+                {'id': 'NODE_45', 'group': 0},
+                {'id': 'NODE_39', 'group': 0},
+                {'id': 'NODE_38', 'group': 0},
+                {'id': 'NODE_43', 'group': 0},
+                {'id': 'NODE_57', 'group': 0},
+                {'id': 'NODE_40', 'group': 0},
+                {'id': 'NODE_56', 'group': 0},
+                {'id': 'NODE_55', 'group': 0},
+                {'id': 'NODE_54', 'group': 0},
+                {'id': 'NODE_53', 'group': 0},
+                {'id': 'NODE_48', 'group': 0},
+                {'id': 'NODE_47', 'group': 0},
+                {'id': 'NODE_52', 'group': 0},
+                {'id': 'NODE_49', 'group': 0},
+                {'id': 'NODE_51', 'group': 0},
+                {'id': 'NODE_50', 'group': 0}],
+        "links": [{'source': 'NODE_62', 'target': 'NODE_58', 'distance': 1.96},
+                {'source': 'NODE_58', 'target': 'NODE_36', 'distance': 1.51},
+                {'source': 'NODE_36', 'target': 'NODE_32', 'distance': 0.47},
+                {'source': 'NODE_32', 'target': 'NZ_CP044032.1', 'distance': 0.0},
+                {'source': 'NODE_32', 'target': 'NZ_LR025100.1', 'distance': 0.0},
+                {'source': 'NODE_36', 'target': 'NODE_33', 'distance': 0.47},
+                {'source': 'NODE_33', 'target': 'NZ_CP018443.1', 'distance': 0.14},
+                {'source': 'NODE_33', 'target': 'NZ_CP028818.1', 'distance': 0.14},
+                {'source': 'NODE_58', 'target': 'NODE_44', 'distance': 1.51},
+                {'source': 'NODE_44', 'target': 'NZ_CP027154.1', 'distance': 1.2},
+                {'source': 'NODE_44', 'target': 'NZ_CP045282.1', 'distance': 1.2},
+                {'source': 'NODE_62', 'target': 'NODE_61', 'distance': 1.96},
+                {'source': 'NODE_61', 'target': 'NODE_41', 'distance': 1.8},
+                {'source': 'NODE_41', 'target': 'NZ_CP023947.1', 'distance': 0.82},
+                {'source': 'NODE_41', 'target': 'NODE_37', 'distance': 0.82},
+                {'source': 'NODE_37', 'target': 'NZ_CP034282.1', 'distance': 0.57},
+                {'source': 'NODE_37', 'target': 'NODE_34', 'distance': 0.57},
+                {'source': 'NODE_34', 'target': 'NZ_CP024516.1', 'distance': 0.22},
+                {'source': 'NODE_34', 'target': 'WMHT01000002.1', 'distance': 0.22},
+                {'source': 'NODE_61', 'target': 'NODE_60', 'distance': 1.8},
+                {'source': 'NODE_60', 'target': 'NODE_46', 'distance': 1.66},
+                {'source': 'NODE_46', 'target': 'NZ_CP011334.1', 'distance': 1.3},
+                {'source': 'NODE_46', 'target': 'NODE_42', 'distance': 1.3},
+                {'source': 'NODE_42', 'target': 'NZ_CM004622.1', 'distance': 0.82},
+                {'source': 'NODE_42', 'target': 'NODE_35', 'distance': 0.82},
+                {'source': 'NODE_35', 'target': 'NZ_CM017091.1', 'distance': 0.31},
+                {'source': 'NODE_35', 'target': 'NZ_CM017179.1', 'distance': 0.31},
+                {'source': 'NODE_60', 'target': 'NODE_59', 'distance': 1.66},
+                {'source': 'NODE_59', 'target': 'NODE_45', 'distance': 1.56},
+                {'source': 'NODE_45', 'target': 'NODE_39', 'distance': 1.23},
+                {'source': 'NODE_39', 'target': 'NZ_CP027156.1', 'distance': 0.74},
+                {'source': 'NODE_39', 'target': 'NODE_38', 'distance': 0.74},
+                {'source': 'NODE_38', 'target': 'NZ_CP015501.1', 'distance': 0.69},
+                {'source': 'NODE_38', 'target': 'NZ_CP041935.1', 'distance': 0.69},
+                {'source': 'NODE_45', 'target': 'NODE_43', 'distance': 1.23},
+                {'source': 'NODE_43', 'target': 'NZ_CP031580.1', 'distance': 0.88},
+                {'source': 'NODE_43', 'target': 'NZ_CP042869.1', 'distance': 0.88},
+                {'source': 'NODE_59', 'target': 'NODE_57', 'distance': 1.56},
+                {'source': 'NODE_57', 'target': 'NODE_40', 'distance': 1.49},
+                {'source': 'NODE_40', 'target': 'NZ_CP035347.1', 'distance': 0.79},
+                {'source': 'NODE_40', 'target': 'NZ_CP035364.1', 'distance': 0.79},
+                {'source': 'NODE_57', 'target': 'NODE_56', 'distance': 1.49},
+                {'source': 'NODE_56', 'target': 'NZ_CP020850.1', 'distance': 1.42},
+                {'source': 'NODE_56', 'target': 'NODE_55', 'distance': 1.42},
+                {'source': 'NODE_55', 'target': 'NZ_CP027151.1', 'distance': 1.42},
+                {'source': 'NODE_55', 'target': 'NODE_54', 'distance': 1.42},
+                {'source': 'NODE_54', 'target': 'NZ_CM017034.1', 'distance': 1.42},
+                {'source': 'NODE_54', 'target': 'NODE_53', 'distance': 1.42},
+                {'source': 'NODE_53', 'target': 'NODE_48', 'distance': 1.41},
+                {'source': 'NODE_48', 'target': 'NZ_CP015133.1', 'distance': 1.41},
+                {'source': 'NODE_48', 'target': 'NODE_47', 'distance': 1.41},
+                {'source': 'NODE_47', 'target': 'NZ_CP026852.1', 'distance': 1.39},
+                {'source': 'NODE_47', 'target': 'NZ_CP027163.1', 'distance': 1.39},
+                {'source': 'NODE_53', 'target': 'NODE_52', 'distance': 1.41},
+                {'source': 'NODE_52', 'target': 'NODE_49', 'distance': 1.41},
+                {'source': 'NODE_49', 'target': 'CP029217.1', 'distance': 1.41},
+                {'source': 'NODE_49', 'target': 'LR134132.1', 'distance': 1.41},
+                {'source': 'NODE_52', 'target': 'NODE_51', 'distance': 1.41},
+                {'source': 'NODE_51', 'target': 'NZ_CP036325.1', 'distance': 1.41},
+                {'source': 'NODE_51', 'target': 'NODE_50', 'distance': 1.41},
+                {'source': 'NODE_50', 'target': 'NZ_CP029222.1', 'distance': 1.41},
+                {'source': 'NODE_50', 'target': 'NZ_LT904874.1', 'distance': 1.41}]
+        };
+
+        //Colors 
+        //https://github.com/d3/d3-color/issues/11
+        var lookup = {};
+        var uniqueValues = [];
+
+        data.nodes.forEach(d => {
+            if (!(d.group in lookup)) {
+                lookup[d.group] = 1;
+                uniqueValues.push(d.group);
+            };
+        });
+        
+        var color = d3.scaleOrdinal()
+            .domain(uniqueValues)
+            .range(uniqueValues.map((group, i) => {
+                const t = i / uniqueValues.length;
+
+                return d3.hcl(t * 360, 50, 80);
+            }));
+        //*Colors
+
+        
+        render = (graph) => {
+        var label = {
+                'nodes': [],
+                'links': []
+            };
+
+        graph.nodes.forEach(function(d, i) {
+            label.nodes.push({node: d});
+            label.nodes.push({node: d});
+            label.links.push({
+                source: i * 2,
+                target: i * 2 + 1
+            });
+        });
+
+        console.log(label)
+        
+        var labelLayout = d3.forceSimulation(label.nodes)
+            .force("charge", d3.forceManyBody().strength(-50))
+            .force("link", d3.forceLink(label.links).distance(0).strength(2));
+
+        var graphLayout = d3.forceSimulation(graph.nodes)
+            .force("charge", d3.forceManyBody().strength(-2000))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("x", d3.forceX(width / 2).strength(1))
+            .force("y", d3.forceY(height / 2).strength(1))
+            .force("link", d3.forceLink(graph.links).id(d => d.id).distance(d => d.distance * 100).strength(3))
+            .on("tick", ticked);
+        
+        var adjlist = [];
+
+        graph.links.forEach(function(d) {
+            adjlist[d.source.index + "-" + d.target.index] = true;
+            adjlist[d.target.index + "-" + d.source.index] = true;
+        });
+        //console.log(adjlist)
+        function neigh(a, b) {
+            return a == b || adjlist[a + "-" + b];
+        }
+
+
+        var svg = d3.select("#viz").attr("width", width).attr("height", height);
+        var container = svg.append("g");
+
+        svg.call(
+            d3.zoom()
+                .scaleExtent([.1, 4])
+                .on("zoom", function() { container.attr("transform", d3.event.transform); })
+        );
+
+        var link = container.append("g").attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter()
+            .append("line")
+            .attr("stroke", "#aaa")
+            .attr("stroke-width", "1px");
+
+        var node = container.append("g").attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes)
+            .enter()
+            .append("circle")
+            .attr("r", 10)
+            .attr("fill", function(d) { return color(d.group); })
+
+        node.on("mouseover", focus).on("mouseout", unfocus);
+
+        node.call(
+            d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended)
+        );
+
+        node.append("title")
+            .text(d => d.id + " : Group: " + d.group);
+
+        var labelNode = container.append("g").attr("class", "labelNodes")
+            .selectAll("text")
+            .data(label.nodes)
+            .enter()
+            .append("text")
+            .text(function(d, i) { return i % 2 == 0 ? "" : d.node.id; })
+            .style("fill", "#555")
+            .style("font-family", "Arial")
+            .style("font-size", 12)
+            .style("pointer-events", "none"); // to prevent mouseover/drag capture
+            
+        //labelLink
+        var textLink = g
+            .selectAll("text.link")
+            .data(label.links)
+            .enter()
+            .append("text")
+            .text(d => d.distance.toFixed(2))
+            .attr('fill', 'black');
+
+        node.on("mouseover", focus).on("mouseout", unfocus);
+
+        function ticked() {
+
+            node.call(updateNode);
+            link.call(updateLink);
+
+            labelLayout.alphaTarget(0.3).restart();
+            labelNode.each(function(d, i) {
+                if(i % 2 == 0) {
+                    d.x = d.node.x;
+                    d.y = d.node.y;
+                } else {
+                    var b = this.getBBox();
+
+                    var diffX = d.x - d.node.x;
+                    var diffY = d.y - d.node.y;
+
+                    var dist = Math.sqrt(diffX * diffX + diffY * diffY);
+
+                    var shiftX = b.width * (diffX - dist) / (dist * 2);
+                    shiftX = Math.max(-b.width, Math.min(0, shiftX));
+                    var shiftY = 16;
+                    this.setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
+                }
+            });
+            labelNode.call(updateNode);
+            
+
+        }
+
+        function fixna(x) {
+            if (isFinite(x)) return x;
+            return 0;
+        }
+
+        function focus(d) {
+            var index = d3.select(d3.event.target).datum().index;
+            //console.log(d3.select(d3.event.target).datum())
+            node.style("opacity", function(o) {
+                return neigh(index, o.index) ? 1 : 0.1;
+            });
+            labelNode.attr("display", function(o) {
+            return neigh(index, o.node.index) ? "block": "none";
+            });
+            link.style("opacity", function(o) {
+                return o.source.index == index || o.target.index == index ? 1 : 0.1;
+            });
+        }
+
+        function unfocus() {
+        labelNode.attr("display", "block");
+        node.style("opacity", 1);
+        link.style("opacity", 1);
+        }
+
+        function updateLink(link) {
+            link.attr("x1", function(d) { return fixna(d.source.x); })
+                .attr("y1", function(d) { return fixna(d.source.y); })
+                .attr("x2", function(d) { return fixna(d.target.x); })
+                .attr("y2", function(d) { return fixna(d.target.y); });
+        }
+
+        function updateNode(node) {
+            node.attr("transform", function(d) {
+                return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+            });
+        }
+
+        function dragstarted(d) {
+            d3.event.sourceEvent.stopPropagation();
+            if (!d3.event.active) graphLayout.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(d) {
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        }
+
+        function dragended(d) {
+            if (!d3.event.active) graphLayout.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        };
+        render(data)
+
+    </script>
+</html>
