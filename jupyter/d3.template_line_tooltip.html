@@ -56,24 +56,36 @@
             pointer-events: none;
         }
         
-        div.tooltip2 {
-            position: absolute;
-            text-align: center;
-            width: auto;
-            height: auto;
-            padding: 2px;
-            font: 14px sans-serif;
-            background: white;
-            border: 0px;
-            border-radius: 5px;
-            pointer-events: none;
+        .axis path,
+        .axis line {
+          fill: none;
+          stroke: #D4D8DA;
+          stroke-width: 2px;
+          shape-rendering: crispEdges;
         }
 
         .line {
           fill: none;
           stroke: #6F257F;
           stroke-width: 2px;
-    
+        }
+
+        .overlay {
+          fill: none;
+          pointer-events: all;
+        }
+
+        .focus circle {
+          fill: #F1F3F3;
+          stroke: #6F257F;
+          stroke-width: 2px;
+        }
+
+        .hover-line {
+          stroke: #6F257F;
+          stroke-width: 1px;
+          stroke-dasharray: 3,3;
+        }
         </style>
         <script src="https://d3js.org/d3.v5.min.js"></script>
     </head>
@@ -148,6 +160,8 @@
             yAxiscovG.select('.domain')
                 .remove();
             
+            
+
 
             //Add x label
             xAxisG.append('text')
@@ -186,9 +200,56 @@
                 .attr("class", "line")
                 .attr("d", line);
             
-            // Define the div for the frequency tooltip
+            //Tooltip line
+            var focus = g.append("g")
+                .attr("class", "focus")
+                .style("display", "none");
+
+            focus.append("line")
+                .attr("class", "x-hover-line hover-line")
+                .attr("y1", 0)
+                .attr("y2", height);
+
+            focus.append("line")
+                .attr("class", "y-hover-line hover-line")
+                .attr("x1", width)
+                .attr("x2", width);
+
+            focus.append("circle")
+                .attr("r", 3.5);
+
+            focus.append("text")
+                .attr("x", 15)
+                .attr("dy", ".31em");
+
+            svg.append("rect")
+                .attr('fill', 'None')
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .attr("class", "overlay")
+                .attr("width", innerWidth)
+                .attr("height", innerHeight)
+                .on("mouseover", function() { focus.style("display", null); })
+                .on("mouseout", function() { focus.style("display", "none"); })
+                .on("mousemove", mousemove);
+            
+            bisectPos = d3.bisector(function(d) {return d.POS; }).left;
+            
+            function mousemove() {
+              var x0 = xScale.invert(d3.mouse(this)[0]),
+                  i = bisectPos(covdata, x0, 1),
+                  d0 = covdata[i - 1],
+                  d1 = covdata[i],
+                  d = x0 - d0.POS > d1.DP - x0 ? d1 : d0;
+              focus.attr("transform", "translate(" + xScale(d.POS) + "," + yScalecov(d.DP) + ")");
+              focus.select("text").text(function() { return "DP: " + d.DP; });
+              focus.select(".x-hover-line").attr("y2", innerHeight - yScalecov(d.DP));
+              focus.select(".y-hover-line").attr("x2", innerWidth + innerWidth);
+            };
+            
+            // Define the div for the tooltip
             var div = d3.select("body").append("div")
                 .attr("class", "tooltip")
+                .attr('z-index', 100)
                 .style("opacity", 0);
             
             //Create scatter
@@ -196,6 +257,7 @@
                 .data(data)
                 .enter()
                 .append('circle')
+                .attr('z-index', 100)
                 .attr('fill-opacity', 0.5)
                 .attr('stroke-opacity', 1)
                 .attr('stroke', function(d) {return (yValue(d) > 50 ? "blue" : "salmon"); })
@@ -208,7 +270,7 @@
                     d3.select(this)
                       .transition()
                       .duration(50)
-                      .attr('stroke-width',2);
+                      .attr('stroke-width',2)
 
                     div.transition()
                         .duration(100)
@@ -220,58 +282,13 @@
                 .on("mouseout", function(d) {
                      d3.select(this)
                       .transition()
-                      .duration(500)
+                      .duration(1000)
                       .attr('stroke-width',0)
 
                     div.transition()
                         .duration(500)
                         .style("opacity", 0)
                 });
-            
-                // Define the div for the coverage tooltip
-                var divcov = d3.select("body").append("div")
-                    .attr("class", "tooltip2")
-                    .style("opacity", 0);
-            
-                //Create scatter for tooltip coverage
-                g.selectAll('.dot')
-                    .data(covdata)
-                    .enter()
-                    .append('circle')
-                    .attr("opacity", 0)
-                    .attr('stroke', 'chartreuse')
-                    .attr('stroke-width',0)
-                    .attr('fill', 'purple')
-                    .attr('cy', d => yScalecov(d.DP))
-                    .attr('cx', d => xScale(d.POS))
-                    .attr('r', 4)
-                    .on("mouseover", function(d) {
-                    d3.select(this)
-                      .attr('opacity', 1)
-                        .attr('stroke-width', 5);
-                        
-                        console.log(d3.event.pageX)
-                        
-                        divcov.transition()
-                            .duration(100)
-                            .style("opacity", .9);
-                        divcov.html('POS: ' + d.POS + "<br/>" + 'DP: ' + d.DP )
-                            .style("left", (d3.event.pageX + 3) + "px")
-                            .style("top", (d3.event.pageY - 30) + "px");
-                    
-                    })
-                    .on("mouseout", function(d) {
-                         d3.select(this)
-                          .transition()
-                          .duration(50)
-                          .attr('opacity', 0)
-                        .attr('stroke-width', 0)
-                        
-                        divcov.transition()
-                        .duration(500)
-                        .style("opacity", 0)
-
-                    });
 
         };
         
