@@ -52,8 +52,6 @@
                             .domain([0, d3.max(data, xValue)])
                             .range([0, innerWidth]);
             
-            
-            
             const yScale = d3.scaleBand()
                             .domain(data.map(yValue))
                             .range([0, innerHeight])
