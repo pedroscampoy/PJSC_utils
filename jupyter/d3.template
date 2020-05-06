@@ -68,6 +68,14 @@
         .amplicon:hover {
             fill: brown;
         }
+        
+        .legend {
+            font-size: 9px;
+        }
+        
+        #apple{
+            fill: black;
+        }
     
         </style>
         <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -192,10 +200,12 @@
             const yValue = d => d.FREQ;
             const yAxisLabel = 'Frequency';
             const y2AxisLabel = 'Coverage';
-            const circleRadius = 3;
-            const strokeWidth = 1;
+            const circleRadius = 4;
+            const strokeWidth = 1.5;
+            const legendRadiusSize = 5;
+            const legendSpacing = 4;
             
-            const margin = {top: 60, right: 150, bottom: 88, left: 100};
+            const margin = {top: 60, right: 190, bottom: 88, left: 80};
             const innerWidth = width - margin.left - margin.right;
             const innerHeight = height - margin.top - margin.bottom;
 
@@ -233,7 +243,16 @@
             //Add labels and ticks to axes and remove some ticks
             const yAxisG = g.append('g')
                         .attr("class", "axisGrey")
-                        .call(yAxis)
+                        .call(yAxis);
+            
+            /*
+            .append("text")
+                          .attr("transform", "rotate(-90)")
+                          .attr("y", 6)
+                          .attr("dy", ".71em")
+                          .style("text-anchor", "end")
+                          .text("Frequency (%))")
+            */
 
             yAxisG.selectAll('.domain')
                     .remove();
@@ -289,6 +308,27 @@
                 .attr('y', -10)
                 .text(title);
             
+            //Colors 
+            //https://github.com/d3/d3-color/issues/11
+            var lookup = {};
+            var uniqueValues = [];
+
+            data.forEach(d => {
+                if (!(d.ANN in lookup)) {
+                    lookup[d.ANN] = 1;
+                    uniqueValues.push(d.ANN);
+                };
+            });
+            
+            var color = d3.scaleOrdinal()
+            .domain(uniqueValues)
+            .range(uniqueValues.map((group, i) => {
+                const t = i / uniqueValues.length;
+
+                return d3.hcl(t * 360, 50, 80);
+            }));
+        
+            
             //Background rect primers
             g.selectAll('rect')
             .data(beddata)
@@ -302,7 +342,7 @@
             .attr('fill', '#fcd47e')
             .attr('fill-opacity', 0.05)
             .append('title')
-                .text(d => d.name + ": " + d.start + ":" + d.end);
+                .text(d => d.name + "\n" + d.start + ":" + d.end);
             
             //Create line
             
@@ -321,16 +361,6 @@
                 .attr("class", "tooltip")
                 .style("opacity", 0);
             
-            const colorAnnotation = function(d) {let color;
-                                  if (d.ANN === 'HIGH') {
-                                    color = 'red';
-                                  } else if (d.ANN === 'LOW') {
-                                    color = 'green';
-                                  } else if (d.ANN === 'MODERATE') {
-                                    color = 'orange';
-                                  }
-                                  return color;
-                                };
             //Create scatter
             g.selectAll('circle')
                 .data(data)
@@ -338,7 +368,7 @@
                 .append('circle')
                 .attr('fill-opacity', 0.8)
                 .attr('stroke-opacity', 1)
-                .attr('stroke', colorAnnotation)
+                .attr('stroke', d => color(d.ANN))
                 .attr('fill', function(d) {return (yValue(d) > 50 ? "blue" : "darkseagreen"); })
                 .attr('stroke-width', strokeWidth)
                 .attr('cy', d => yScale(yValue(d)))
@@ -352,7 +382,10 @@
                     div.transition()
                         .duration(100)
                         .style("opacity", .9);
-                    div.html('POS: ' + d.POS + "<br/>"  + 'FREQ: ' + d.FREQ + "<br/>" + d.REF + ">" + d.ALT )
+                    div.html('POS: ' + d.POS + "<br/>" 
+                             + 'FREQ: ' + d.FREQ + "<br/>" 
+                             + d.REF + ">" + d.ALT + "<br/>"
+                            + 'ANN: ' + d.ANN)
                         .style("left", (d3.event.pageX + 3) + "px")
                         .style("top", (d3.event.pageY - 30) + "px");
                     })
@@ -367,8 +400,40 @@
                         .style("opacity", 0)
                 });
 
-        };
-        
+            //Add legend
+            
+            var legendG = svg.append("g")
+                .attr("class", "legend")
+                .attr('transform', `translate(${width - (margin.right / 2) - 30}, ${height - (margin.bottom * 2) + 30})`)
+                .attr("height", 100)
+                .attr("width", 100);
+            
+            var legend = legendG.selectAll('.legend')                     
+              .data(color.domain())                                   
+              .enter()                                                
+              .append('g')                                            
+              .attr('class', 'legend') 
+              .attr('transform', function(d, i) {                 
+                var height = legendRadiusSize + (legendRadiusSize * 2);          
+                var offset =  height * color.domain().length / 2;     
+                var horz = -2 * legendRadiusSize;                       
+                var vert = i * height - offset;                       
+                return 'translate(' + horz + ',' + vert + ')';        
+              });
+            legend.append('circle')
+                .attr('id', d => d)
+                .attr('r', legendRadiusSize)
+                .attr('fill', d => color(d))
+                .style('stroke', d => color(d));
+            
+            legend.append('text')
+                .attr('x', legendRadiusSize + legendSpacing)
+                .attr('y', legendRadiusSize - legendSpacing)
+                .attr('dy', '0.32em')
+                .text(d => d);
+
+            };
+
     DATAGROUP
             
     RENDERGROUP
