@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--https://bl.ocks.org/mapio/53fed7d84cd1812d6a6639ed7aa83868-->
+        <title>SNP to Network</title>
+        <style>
+        body {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        text {
+            font-size: 0.5em;
+        }
+
+        .node:hover {
+            stroke: black;
+        }
+
+        </style>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+    </head>
+    <body>
+        <svg id='viz'></svg>
+    </body>
+
+    <script>
+        
+        const svg = d3.select('svg');
+        
+        const width = document.body.clientWidth;
+        const height = document.body.clientHeight;
+
+        svg.attr('width', width)
+            .attr('height', height)
+            .append('rect')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('rx', 40)
+            .attr('fill', 'none');
+        
+        data = {
+            "nodes": [{'id': '544651', 'group': 75},
+                        {'id': '544663', 'group': 11},
+                        {'id': '544680', 'group': 98},
+                        {'id': '544689', 'group': 34},
+                        {'id': '544719', 'group': 113},
+                        {'id': '544723', 'group': 9},
+                        {'id': '544732', 'group': 92},
+                        {'id': '544758', 'group': 93},
+                        {'id': '544762', 'group': 101},
+                        {'id': '544780', 'group': 65},
+                        {'id': '544789', 'group': 79},
+                        {'id': '544798', 'group': 73},
+                        {'id': '544803', 'group': 78},
+                        {'id': '544832', 'group': 35},
+                        {'id': '544892', 'group': 106},
+                        {'id': '544900', 'group': 99},
+                        {'id': '544974', 'group': 7},
+                        {'id': '544989', 'group': 78},
+                        {'id': '545011', 'group': 38},
+                        {'id': '545048', 'group': 76},
+                        {'id': '545068', 'group': 71},
+                        {'id': '545130', 'group': 6},
+                        {'id': '545142', 'group': 77},
+                        {'id': '545163', 'group': 102},
+                        {'id': '545164', 'group': 82},
+                        {'id': '545169', 'group': 13},
+                        {'id': '545271', 'group': 85},
+                        {'id': '545330', 'group': 16},
+                        {'id': '545376', 'group': 100},
+                        {'id': '545403', 'group': 5},
+                        {'id': '545424', 'group': 112},
+                        {'id': '545426', 'group': 5},
+                        {'id': '545457', 'group': 95},
+                        {'id': '545473', 'group': 5},
+                        {'id': '545555', 'group': 90},
+                        {'id': '545567', 'group': 83},
+                        {'id': '545624', 'group': 109},
+                        {'id': '545661', 'group': 42},
+                        {'id': '545734', 'group': 96},
+                        {'id': '545781', 'group': 37},
+                        {'id': '545786', 'group': 86},
+                        {'id': '545804', 'group': 111},
+                        {'id': '545814', 'group': 36},
+                        {'id': '545831', 'group': 94},
+                        {'id': '545833', 'group': 69},
+                        {'id': '545836', 'group': 74},
+                        {'id': '545855', 'group': 8},
+                        {'id': '545889', 'group': 39},
+                        {'id': '545899', 'group': 14},
+                        {'id': '545906', 'group': 108},
+                        {'id': '545907', 'group': 37},
+                        {'id': '545916', 'group': 110},
+                        {'id': '545925', 'group': 67},
+                        {'id': '545933', 'group': 67},
+                        {'id': '545967', 'group': 67},
+                        {'id': '545980', 'group': 104},
+                        {'id': '545991', 'group': 12},
+                        {'id': '546011', 'group': 114},
+                        {'id': '546017', 'group': 10},
+                        {'id': '546019', 'group': 91},
+                        {'id': '546023', 'group': 103},
+                        {'id': '546073', 'group': 97},
+                        {'id': '546076', 'group': 68},
+                        {'id': '546083', 'group': 72},
+                        {'id': '546095', 'group': 84},
+                        {'id': '546103', 'group': 105},
+                        {'id': '546156', 'group': 15},
+                        {'id': '546197', 'group': 107},
+                        {'id': '546234', 'group': 70},
+                        {'id': 'ISC01', 'group': 54},
+                        {'id': 'ISC02', 'group': 63},
+                        {'id': 'ISC03', 'group': 53},
+                        {'id': 'ISC04', 'group': 22},
+                        {'id': 'ISC05', 'group': 47},
+                        {'id': 'ISC06', 'group': 89},
+                        {'id': 'ISC07', 'group': 23},
+                        {'id': 'ISC08', 'group': 61},
+                        {'id': 'ISC09', 'group': 20},
+                        {'id': 'ISC11', 'group': 64},
+                        {'id': 'ISC12', 'group': 27},
+                        {'id': 'ISC13', 'group': 52},
+                        {'id': 'ISC14', 'group': 43},
+                        {'id': 'ISC15', 'group': 21},
+                        {'id': 'ISC16', 'group': 88},
+                        {'id': 'ISC17', 'group': 24},
+                        {'id': 'ISC18', 'group': 50},
+                        {'id': 'ISC19', 'group': 46},
+                        {'id': 'ISC20', 'group': 33},
+                        {'id': 'ISC21', 'group': 18},
+                        {'id': 'ISC22', 'group': 3},
+                        {'id': 'ISC23', 'group': 30},
+                        {'id': 'ISC25', 'group': 19},
+                        {'id': 'ISC26', 'group': 17},
+                        {'id': 'ISC27', 'group': 28},
+                        {'id': 'ISC28', 'group': 31},
+                        {'id': 'ISC29', 'group': 60},
+                        {'id': 'ISC30', 'group': 25},
+                        {'id': 'ISC31', 'group': 66},
+                        {'id': 'ISC32', 'group': 56},
+                        {'id': 'ISC33', 'group': 4},
+                        {'id': 'ISC34', 'group': 29},
+                        {'id': 'ISC35', 'group': 32},
+                        {'id': 'ISC36', 'group': 26},
+                        {'id': 'ISC37', 'group': 55},
+                        {'id': 'ISC38', 'group': 40},
+                        {'id': 'ISC39', 'group': 52},
+                        {'id': 'ISC40', 'group': 80},
+                        {'id': 'ISC41', 'group': 53},
+                        {'id': 'ISC42', 'group': 87},
+                        {'id': 'ISC43', 'group': 44},
+                        {'id': 'ISC44', 'group': 58},
+                        {'id': 'ISC45', 'group': 45},
+                        {'id': 'ISC46', 'group': 49},
+                        {'id': 'ISC47', 'group': 59},
+                        {'id': 'ISC48', 'group': 87},
+                        {'id': 'ISC49', 'group': 1},
+                        {'id': 'ISC50', 'group': 2},
+                        {'id': 'ISC51', 'group': 48},
+                        {'id': 'ISC52', 'group': 57},
+                        {'id': 'ISC53', 'group': 51},
+                        {'id': 'ISC54', 'group': 41},
+                        {'id': 'ISC55', 'group': 45},
+                        {'id': 'ISC56', 'group': 81},
+                        {'id': 'ISC57', 'group': 62},
+                        {'id': 'NODE_18', 'group': 0},
+                        {'id': 'NODE_10', 'group': 0},
+                        {'id': 'NODE_17', 'group': 0},
+                        {'id': 'NODE_15', 'group': 0},
+                        {'id': 'NODE_11', 'group': 0},
+                        {'id': 'NODE_14', 'group': 0},
+                        {'id': 'NODE_13', 'group': 0},
+                        {'id': 'NODE_12', 'group': 0},
+                        {'id': 'NODE_16', 'group': 0},
+                        {'id': 'NODE_246', 'group': 0},
+                        {'id': 'NODE_214', 'group': 0},
+                        {'id': 'NODE_180', 'group': 0},
+                        {'id': 'NODE_167', 'group': 0},
+                        {'id': 'NODE_168', 'group': 0},
+                        {'id': 'NODE_212', 'group': 0},
+                        {'id': 'NODE_209', 'group': 0},
+                        {'id': 'NODE_126', 'group': 0},
+                        {'id': 'NODE_125', 'group': 0},
+                        {'id': 'NODE_210', 'group': 0},
+                        {'id': 'NODE_183', 'group': 0},
+                        {'id': 'NODE_174', 'group': 0},
+                        {'id': 'NODE_164', 'group': 0},
+                        {'id': 'NODE_204', 'group': 0},
+                        {'id': 'NODE_201', 'group': 0},
+                        {'id': 'NODE_199', 'group': 0},
+                        {'id': 'NODE_166', 'group': 0},
+                        {'id': 'NODE_185', 'group': 0},
+                        {'id': 'NODE_182', 'group': 0},
+                        {'id': 'NODE_245', 'group': 0},
+                        {'id': 'NODE_194', 'group': 0},
+                        {'id': 'NODE_172', 'group': 0},
+                        {'id': 'NODE_190', 'group': 0},
+                        {'id': 'NODE_184', 'group': 0},
+                        {'id': 'NODE_173', 'group': 0},
+                        {'id': 'NODE_161', 'group': 0},
+                        {'id': 'NODE_154', 'group': 0},
+                        {'id': 'NODE_157', 'group': 0},
+                        {'id': 'NODE_147', 'group': 0},
+                        {'id': 'NODE_155', 'group': 0},
+                        {'id': 'NODE_143', 'group': 0},
+                        {'id': 'NODE_176', 'group': 0},
+                        {'id': 'NODE_160', 'group': 0},
+                        {'id': 'NODE_156', 'group': 0},
+                        {'id': 'NODE_142', 'group': 0},
+                        {'id': 'NODE_145', 'group': 0},
+                        {'id': 'NODE_244', 'group': 0},
+                        {'id': 'NODE_237', 'group': 0},
+                        {'id': 'NODE_163', 'group': 0},
+                        {'id': 'NODE_211', 'group': 0},
+                        {'id': 'NODE_205', 'group': 0},
+                        {'id': 'NODE_189', 'group': 0},
+                        {'id': 'NODE_141', 'group': 0},
+                        {'id': 'NODE_131', 'group': 0},
+                        {'id': 'NODE_202', 'group': 0},
+                        {'id': 'NODE_195', 'group': 0},
+                        {'id': 'NODE_150', 'group': 0},
+                        {'id': 'NODE_192', 'group': 0},
+                        {'id': 'NODE_208', 'group': 0},
+                        {'id': 'NODE_198', 'group': 0},
+                        {'id': 'NODE_191', 'group': 0},
+                        {'id': 'NODE_177', 'group': 0},
+                        {'id': 'NODE_146', 'group': 0},
+                        {'id': 'NODE_134', 'group': 0},
+                        {'id': 'NODE_130', 'group': 0},
+                        {'id': 'NODE_243', 'group': 0},
+                        {'id': 'NODE_220', 'group': 0},
+                        {'id': 'NODE_207', 'group': 0},
+                        {'id': 'NODE_196', 'group': 0},
+                        {'id': 'NODE_187', 'group': 0},
+                        {'id': 'NODE_162', 'group': 0},
+                        {'id': 'NODE_153', 'group': 0},
+                        {'id': 'NODE_149', 'group': 0},
+                        {'id': 'NODE_148', 'group': 0},
+                        {'id': 'NODE_140', 'group': 0},
+                        {'id': 'NODE_139', 'group': 0},
+                        {'id': 'NODE_135', 'group': 0},
+                        {'id': 'NODE_124', 'group': 0},
+                        {'id': 'NODE_129', 'group': 0},
+                        {'id': 'NODE_144', 'group': 0},
+                        {'id': 'NODE_171', 'group': 0},
+                        {'id': 'NODE_218', 'group': 0},
+                        {'id': 'NODE_242', 'group': 0},
+                        {'id': 'NODE_215', 'group': 0},
+                        {'id': 'NODE_188', 'group': 0},
+                        {'id': 'NODE_175', 'group': 0},
+                        {'id': 'NODE_137', 'group': 0},
+                        {'id': 'NODE_132', 'group': 0},
+                        {'id': 'NODE_127', 'group': 0},
+                        {'id': 'NODE_170', 'group': 0},
+                        {'id': 'NODE_179', 'group': 0},
+                        {'id': 'NODE_178', 'group': 0},
+                        {'id': 'NODE_169', 'group': 0},
+                        {'id': 'NODE_241', 'group': 0},
+                        {'id': 'NODE_206', 'group': 0},
+                        {'id': 'NODE_151', 'group': 0},
+                        {'id': 'NODE_197', 'group': 0},
+                        {'id': 'NODE_136', 'group': 0},
+                        {'id': 'NODE_128', 'group': 0},
+                        {'id': 'NODE_193', 'group': 0},
+                        {'id': 'NODE_138', 'group': 0},
+                        {'id': 'NODE_165', 'group': 0},
+                        {'id': 'NODE_158', 'group': 0},
+                        {'id': 'NODE_240', 'group': 0},
+                        {'id': 'NODE_217', 'group': 0},
+                        {'id': 'NODE_186', 'group': 0},
+                        {'id': 'NODE_216', 'group': 0},
+                        {'id': 'NODE_203', 'group': 0},
+                        {'id': 'NODE_159', 'group': 0},
+                        {'id': 'NODE_152', 'group': 0},
+                        {'id': 'NODE_133', 'group': 0},
+                        {'id': 'NODE_200', 'group': 0},
+                        {'id': 'NODE_239', 'group': 0},
+                        {'id': 'NODE_238', 'group': 0},
+                        {'id': 'NODE_236', 'group': 0},
+                        {'id': 'NODE_181', 'group': 0},
+                        {'id': 'NODE_235', 'group': 0},
+                        {'id': 'NODE_221', 'group': 0},
+                        {'id': 'NODE_213', 'group': 0},
+                        {'id': 'NODE_234', 'group': 0},
+                        {'id': 'NODE_233', 'group': 0},
+                        {'id': 'NODE_223', 'group': 0},
+                        {'id': 'NODE_219', 'group': 0},
+                        {'id': 'NODE_232', 'group': 0},
+                        {'id': 'NODE_230', 'group': 0},
+                        {'id': 'NODE_222', 'group': 0},
+                        {'id': 'NODE_231', 'group': 0},
+                        {'id': 'NODE_228', 'group': 0},
+                        {'id': 'NODE_226', 'group': 0},
+                        {'id': 'NODE_227', 'group': 0},
+                        {'id': 'NODE_225', 'group': 0},
+                        {'id': 'NODE_229', 'group': 0},
+                        {'id': 'NODE_224', 'group': 0}],
+        "links": [{'source': 'NODE_18', 'target': 'NODE_10', 'distance': 10},
+                    {'source': 'NODE_10', 'target': '544663', 'distance': 0},
+                    {'source': 'NODE_10', 'target': '544723', 'distance': 0},
+                    {'source': 'NODE_18', 'target': 'NODE_17', 'distance': 10},
+                    {'source': 'NODE_17', 'target': 'NODE_15', 'distance': 6},
+                    {'source': 'NODE_15', 'target': 'NODE_11', 'distance': 5},
+                    {'source': 'NODE_11', 'target': '544680', 'distance': 4},
+                    {'source': 'NODE_11', 'target': '544732', 'distance': 4},
+                    {'source': 'NODE_15', 'target': 'NODE_14', 'distance': 5},
+                    {'source': 'NODE_14', 'target': '544689', 'distance': 4},
+                    {'source': 'NODE_14', 'target': 'NODE_13', 'distance': 4},
+                    {'source': 'NODE_13', 'target': '544762', 'distance': 4},
+                    {'source': 'NODE_13', 'target': 'NODE_12', 'distance': 4},
+                    {'source': 'NODE_12', 'target': '544719', 'distance': 4},
+                    {'source': 'NODE_12', 'target': '544758', 'distance': 4},
+                    {'source': 'NODE_17', 'target': 'NODE_16', 'distance': 6},
+                    {'source': 'NODE_16', 'target': '544651', 'distance': 6},
+                    {'source': 'NODE_16', 'target': '544780', 'distance': 6},
+                    {'source': 'NODE_246', 'target': 'NODE_214', 'distance': 10106},
+                    {'source': 'NODE_214', 'target': 'NODE_180', 'distance': 250},
+                    {'source': 'NODE_180', 'target': 'NODE_167', 'distance': 58},
+                    {'source': 'NODE_167', 'target': 'ISC49', 'distance': 42},
+                    {'source': 'NODE_167', 'target': 'ISC50', 'distance': 42},
+                    {'source': 'NODE_180', 'target': 'NODE_168', 'distance': 58},
+                    {'source': 'NODE_168', 'target': 'ISC22', 'distance': 45},
+                    {'source': 'NODE_168', 'target': 'ISC33', 'distance': 45},
+                    {'source': 'NODE_214', 'target': 'NODE_212', 'distance': 250},
+                    {'source': 'NODE_212', 'target': 'NODE_209', 'distance': 188},
+                    {'source': 'NODE_209', 'target': '545130', 'distance': 142},
+                    {'source': 'NODE_209', 'target': 'NODE_126', 'distance': 142},
+                    {'source': 'NODE_126', 'target': '545403', 'distance': 9},
+                    {'source': 'NODE_126', 'target': 'NODE_125', 'distance': 9},
+                    {'source': 'NODE_125', 'target': '545426', 'distance': 6},
+                    {'source': 'NODE_125', 'target': '545473', 'distance': 6},
+                    {'source': 'NODE_212', 'target': 'NODE_210', 'distance': 188},
+                    {'source': 'NODE_210', 'target': 'NODE_183', 'distance': 156},
+                    {'source': 'NODE_183', 'target': '546017', 'distance': 62},
+                    {'source': 'NODE_183', 'target': 'NODE_174', 'distance': 62},
+                    {'source': 'NODE_174', 'target': '544723', 'distance': 54},
+                    {'source': 'NODE_174', 'target': 'NODE_164', 'distance': 54},
+                    {'source': 'NODE_164', 'target': '544974', 'distance': 38},
+                    {'source': 'NODE_164', 'target': '545855', 'distance': 38},
+                    {'source': 'NODE_210', 'target': 'NODE_204', 'distance': 156},
+                    {'source': 'NODE_204', 'target': 'ISC26', 'distance': 121},
+                    {'source': 'NODE_204', 'target': 'NODE_201', 'distance': 121},
+                    {'source': 'NODE_201', 'target': '545330', 'distance': 106},
+                    {'source': 'NODE_201', 'target': 'NODE_199', 'distance': 106},
+                    {'source': 'NODE_199', 'target': 'NODE_166', 'distance': 99},
+                    {'source': 'NODE_166', 'target': '544663', 'distance': 39},
+                    {'source': 'NODE_166', 'target': '545991', 'distance': 39},
+                    {'source': 'NODE_199', 'target': 'NODE_185', 'distance': 99},
+                    {'source': 'NODE_185', 'target': '546156', 'distance': 67},
+                    {'source': 'NODE_185', 'target': 'NODE_182', 'distance': 67},
+                    {'source': 'NODE_182', 'target': '545169', 'distance': 62},
+                    {'source': 'NODE_182', 'target': '545899', 'distance': 62},
+                    {'source': 'NODE_246', 'target': 'NODE_245', 'distance': 10106},
+                    {'source': 'NODE_245', 'target': 'NODE_194', 'distance': 9729},
+                    {'source': 'NODE_194', 'target': 'NODE_172', 'distance': 88},
+                    {'source': 'NODE_172', 'target': 'ISC21', 'distance': 53},
+                    {'source': 'NODE_172', 'target': 'ISC25', 'distance': 53},
+                    {'source': 'NODE_194', 'target': 'NODE_190', 'distance': 88},
+                    {'source': 'NODE_190', 'target': '544689', 'distance': 77},
+                    {'source': 'NODE_190', 'target': 'NODE_184', 'distance': 77},
+                    {'source': 'NODE_184', 'target': 'NODE_173', 'distance': 64},
+                    {'source': 'NODE_173', 'target': 'ISC12', 'distance': 54},
+                    {'source': 'NODE_173', 'target': 'NODE_161', 'distance': 54},
+                    {'source': 'NODE_161', 'target': 'NODE_154', 'distance': 35},
+                    {'source': 'NODE_154', 'target': 'ISC09', 'distance': 31},
+                    {'source': 'NODE_154', 'target': 'ISC15', 'distance': 31},
+                    {'source': 'NODE_161', 'target': 'NODE_157', 'distance': 35},
+                    {'source': 'NODE_157', 'target': 'NODE_147', 'distance': 33},
+                    {'source': 'NODE_147', 'target': 'ISC04', 'distance': 27},
+                    {'source': 'NODE_147', 'target': 'ISC07', 'distance': 27},
+                    {'source': 'NODE_157', 'target': 'NODE_155', 'distance': 33},
+                    {'source': 'NODE_155', 'target': 'ISC36', 'distance': 31},
+                    {'source': 'NODE_155', 'target': 'NODE_143', 'distance': 31},
+                    {'source': 'NODE_143', 'target': 'ISC17', 'distance': 24},
+                    {'source': 'NODE_143', 'target': 'ISC30', 'distance': 24},
+                    {'source': 'NODE_184', 'target': 'NODE_176', 'distance': 64},
+                    {'source': 'NODE_176', 'target': 'ISC20', 'distance': 56},
+                    {'source': 'NODE_176', 'target': 'NODE_160', 'distance': 56},
+                    {'source': 'NODE_160', 'target': 'ISC35', 'distance': 34},
+                    {'source': 'NODE_160', 'target': 'NODE_156', 'distance': 34},
+                    {'source': 'NODE_156', 'target': 'NODE_142', 'distance': 32},
+                    {'source': 'NODE_142', 'target': 'ISC27', 'distance': 22},
+                    {'source': 'NODE_142', 'target': 'ISC34', 'distance': 22},
+                    {'source': 'NODE_156', 'target': 'NODE_145', 'distance': 32},
+                    {'source': 'NODE_145', 'target': 'ISC23', 'distance': 25},
+                    {'source': 'NODE_145', 'target': 'ISC28', 'distance': 25},
+                    {'source': 'NODE_245', 'target': 'NODE_244', 'distance': 9729},
+                    {'source': 'NODE_244', 'target': 'NODE_237', 'distance': 9033},
+                    {'source': 'NODE_237', 'target': 'NODE_163', 'distance': 3596},
+                    {'source': 'NODE_163', 'target': '544832', 'distance': 37},
+                    {'source': 'NODE_163', 'target': '545814', 'distance': 37},
+                    {'source': 'NODE_237', 'target': 'NODE_211', 'distance': 3596},
+                    {'source': 'NODE_211', 'target': 'NODE_205', 'distance': 177},
+                    {'source': 'NODE_205', 'target': 'NODE_189', 'distance': 135},
+                    {'source': 'NODE_189', 'target': '545889', 'distance': 77},
+                    {'source': 'NODE_189', 'target': 'NODE_141', 'distance': 77},
+                    {'source': 'NODE_141', 'target': '545011', 'distance': 22},
+                    {'source': 'NODE_141', 'target': 'NODE_131', 'distance': 22},
+                    {'source': 'NODE_131', 'target': '545781', 'distance': 14},
+                    {'source': 'NODE_131', 'target': '545907', 'distance': 14},
+                    {'source': 'NODE_205', 'target': 'NODE_202', 'distance': 135},
+                    {'source': 'NODE_202', 'target': 'ISC43', 'distance': 109},
+                    {'source': 'NODE_202', 'target': 'NODE_195', 'distance': 109},
+                    {'source': 'NODE_195', 'target': 'NODE_150', 'distance': 94},
+                    {'source': 'NODE_150', 'target': 'ISC38', 'distance': 28},
+                    {'source': 'NODE_150', 'target': 'ISC54', 'distance': 28},
+                    {'source': 'NODE_195', 'target': 'NODE_192', 'distance': 94},
+                    {'source': 'NODE_192', 'target': '545661', 'distance': 84},
+                    {'source': 'NODE_192', 'target': 'ISC14', 'distance': 84},
+                    {'source': 'NODE_211', 'target': 'NODE_208', 'distance': 177},
+                    {'source': 'NODE_208', 'target': 'ISC53', 'distance': 141},
+                    {'source': 'NODE_208', 'target': 'NODE_198', 'distance': 141},
+                    {'source': 'NODE_198', 'target': 'ISC18', 'distance': 98},
+                    {'source': 'NODE_198', 'target': 'NODE_191', 'distance': 98},
+                    {'source': 'NODE_191', 'target': 'ISC46', 'distance': 79},
+                    {'source': 'NODE_191', 'target': 'NODE_177', 'distance': 79},
+                    {'source': 'NODE_177', 'target': 'ISC51', 'distance': 56},
+                    {'source': 'NODE_177', 'target': 'NODE_146', 'distance': 56},
+                    {'source': 'NODE_146', 'target': 'ISC05', 'distance': 26},
+                    {'source': 'NODE_146', 'target': 'NODE_134', 'distance': 26},
+                    {'source': 'NODE_134', 'target': 'ISC19', 'distance': 15},
+                    {'source': 'NODE_134', 'target': 'NODE_130', 'distance': 15},
+                    {'source': 'NODE_130', 'target': 'ISC45', 'distance': 11},
+                    {'source': 'NODE_130', 'target': 'ISC55', 'distance': 11},
+                    {'source': 'NODE_244', 'target': 'NODE_243', 'distance': 9033},
+                    {'source': 'NODE_243', 'target': 'NODE_220', 'distance': 8597},
+                    {'source': 'NODE_220', 'target': 'NODE_207', 'distance': 1993},
+                    {'source': 'NODE_207', 'target': 'ISC11', 'distance': 138},
+                    {'source': 'NODE_207', 'target': 'NODE_196', 'distance': 138},
+                    {'source': 'NODE_196', 'target': 'ISC02', 'distance': 95},
+                    {'source': 'NODE_196', 'target': 'NODE_187', 'distance': 95},
+                    {'source': 'NODE_187', 'target': 'NODE_162', 'distance': 68},
+                    {'source': 'NODE_162', 'target': 'ISC29', 'distance': 36},
+                    {'source': 'NODE_162', 'target': 'NODE_153', 'distance': 36},
+                    {'source': 'NODE_153', 'target': 'ISC47', 'distance': 30},
+                    {'source': 'NODE_153', 'target': 'NODE_149', 'distance': 30},
+                    {'source': 'NODE_149', 'target': 'ISC44', 'distance': 27},
+                    {'source': 'NODE_149', 'target': 'NODE_148', 'distance': 27},
+                    {'source': 'NODE_148', 'target': 'NODE_140', 'distance': 27},
+                    {'source': 'NODE_140', 'target': 'ISC37', 'distance': 20},
+                    {'source': 'NODE_140', 'target': 'NODE_139', 'distance': 20},
+                    {'source': 'NODE_139', 'target': 'ISC01', 'distance': 18},
+                    {'source': 'NODE_139', 'target': 'NODE_135', 'distance': 18},
+                    {'source': 'NODE_135', 'target': 'NODE_124', 'distance': 16},
+                    {'source': 'NODE_124', 'target': 'ISC13', 'distance': 4},
+                    {'source': 'NODE_124', 'target': 'ISC39', 'distance': 4},
+                    {'source': 'NODE_135', 'target': 'NODE_129', 'distance': 16},
+                    {'source': 'NODE_129', 'target': 'ISC03', 'distance': 11},
+                    {'source': 'NODE_129', 'target': 'ISC41', 'distance': 11},
+                    {'source': 'NODE_148', 'target': 'NODE_144', 'distance': 27},
+                    {'source': 'NODE_144', 'target': 'ISC32', 'distance': 24},
+                    {'source': 'NODE_144', 'target': 'ISC52', 'distance': 24},
+                    {'source': 'NODE_187', 'target': 'NODE_171', 'distance': 68},
+                    {'source': 'NODE_171', 'target': 'ISC08', 'distance': 51},
+                    {'source': 'NODE_171', 'target': 'ISC57', 'distance': 51},
+                    {'source': 'NODE_220', 'target': 'NODE_218', 'distance': 1993},
+                    {'source': 'NODE_218', 'target': '544780', 'distance': 858},
+                    {'source': 'NODE_218', 'target': 'ISC31', 'distance': 858},
+                    {'source': 'NODE_243', 'target': 'NODE_242', 'distance': 8597},
+                    {'source': 'NODE_242', 'target': 'NODE_215', 'distance': 7323},
+                    {'source': 'NODE_215', 'target': '544651', 'distance': 319},
+                    {'source': 'NODE_215', 'target': 'NODE_188', 'distance': 319},
+                    {'source': 'NODE_188', 'target': 'NODE_175', 'distance': 70},
+                    {'source': 'NODE_175', 'target': 'NODE_137', 'distance': 55},
+                    {'source': 'NODE_137', 'target': '546076', 'distance': 17},
+                    {'source': 'NODE_137', 'target': 'NODE_132', 'distance': 17},
+                    {'source': 'NODE_132', 'target': '545933', 'distance': 15},
+                    {'source': 'NODE_132', 'target': 'NODE_127', 'distance': 15},
+                    {'source': 'NODE_127', 'target': '545925', 'distance': 10},
+                    {'source': 'NODE_127', 'target': '545967', 'distance': 10},
+                    {'source': 'NODE_175', 'target': 'NODE_170', 'distance': 55},
+                    {'source': 'NODE_170', 'target': '545833', 'distance': 49},
+                    {'source': 'NODE_170', 'target': '546234', 'distance': 49},
+                    {'source': 'NODE_188', 'target': 'NODE_179', 'distance': 70},
+                    {'source': 'NODE_179', 'target': '545836', 'distance': 57},
+                    {'source': 'NODE_179', 'target': 'NODE_178', 'distance': 57},
+                    {'source': 'NODE_178', 'target': '544798', 'distance': 56},
+                    {'source': 'NODE_178', 'target': 'NODE_169', 'distance': 56},
+                    {'source': 'NODE_169', 'target': '545068', 'distance': 49},
+                    {'source': 'NODE_169', 'target': '546083', 'distance': 49},
+                    {'source': 'NODE_242', 'target': 'NODE_241', 'distance': 7323},
+                    {'source': 'NODE_241', 'target': 'NODE_206', 'distance': 6745},
+                    {'source': 'NODE_206', 'target': 'NODE_151', 'distance': 137},
+                    {'source': 'NODE_151', 'target': '545048', 'distance': 28},
+                    {'source': 'NODE_151', 'target': '545142', 'distance': 28},
+                    {'source': 'NODE_206', 'target': 'NODE_197', 'distance': 137},
+                    {'source': 'NODE_197', 'target': 'NODE_136', 'distance': 97},
+                    {'source': 'NODE_136', 'target': '544789', 'distance': 17},
+                    {'source': 'NODE_136', 'target': 'NODE_128', 'distance': 17},
+                    {'source': 'NODE_128', 'target': '544803', 'distance': 10},
+                    {'source': 'NODE_128', 'target': '544989', 'distance': 10},
+                    {'source': 'NODE_197', 'target': 'NODE_193', 'distance': 97},
+                    {'source': 'NODE_193', 'target': 'NODE_138', 'distance': 85},
+                    {'source': 'NODE_138', 'target': 'ISC40', 'distance': 17},
+                    {'source': 'NODE_138', 'target': 'ISC56', 'distance': 17},
+                    {'source': 'NODE_193', 'target': 'NODE_165', 'distance': 85},
+                    {'source': 'NODE_165', 'target': '546095', 'distance': 39},
+                    {'source': 'NODE_165', 'target': 'NODE_158', 'distance': 39},
+                    {'source': 'NODE_158', 'target': '545164', 'distance': 33},
+                    {'source': 'NODE_158', 'target': '545567', 'distance': 33},
+                    {'source': 'NODE_241', 'target': 'NODE_240', 'distance': 6745},
+                    {'source': 'NODE_240', 'target': 'NODE_217', 'distance': 5805},
+                    {'source': 'NODE_217', 'target': 'NODE_186', 'distance': 606},
+                    {'source': 'NODE_186', 'target': '545271', 'distance': 68},
+                    {'source': 'NODE_186', 'target': '545786', 'distance': 68},
+                    {'source': 'NODE_217', 'target': 'NODE_216', 'distance': 606},
+                    {'source': 'NODE_216', 'target': '544732', 'distance': 377},
+                    {'source': 'NODE_216', 'target': 'NODE_203', 'distance': 377},
+                    {'source': 'NODE_203', 'target': 'NODE_159', 'distance': 112},
+                    {'source': 'NODE_159', 'target': 'ISC06', 'distance': 34},
+                    {'source': 'NODE_159', 'target': 'NODE_152', 'distance': 34},
+                    {'source': 'NODE_152', 'target': 'ISC16', 'distance': 28},
+                    {'source': 'NODE_152', 'target': 'NODE_133', 'distance': 28},
+                    {'source': 'NODE_133', 'target': 'ISC42', 'distance': 15},
+                    {'source': 'NODE_133', 'target': 'ISC48', 'distance': 15},
+                    {'source': 'NODE_203', 'target': 'NODE_200', 'distance': 112},
+                    {'source': 'NODE_200', 'target': '545555', 'distance': 100},
+                    {'source': 'NODE_200', 'target': '546019', 'distance': 100},
+                    {'source': 'NODE_240', 'target': 'NODE_239', 'distance': 5805},
+                    {'source': 'NODE_239', 'target': '546011', 'distance': 4945},
+                    {'source': 'NODE_239', 'target': 'NODE_238', 'distance': 4945},
+                    {'source': 'NODE_238', 'target': '544719', 'distance': 4269},
+                    {'source': 'NODE_238', 'target': 'NODE_236', 'distance': 4269},
+                    {'source': 'NODE_236', 'target': 'NODE_181', 'distance': 3292},
+                    {'source': 'NODE_181', 'target': '544758', 'distance': 60},
+                    {'source': 'NODE_181', 'target': '545831', 'distance': 60},
+                    {'source': 'NODE_236', 'target': 'NODE_235', 'distance': 3292},
+                    {'source': 'NODE_235', 'target': 'NODE_221', 'distance': 3073},
+                    {'source': 'NODE_221', 'target': '546073', 'distance': 2379},
+                    {'source': 'NODE_221', 'target': 'NODE_213', 'distance': 2379},
+                    {'source': 'NODE_213', 'target': '545457', 'distance': 250},
+                    {'source': 'NODE_213', 'target': '545734', 'distance': 250},
+                    {'source': 'NODE_235', 'target': 'NODE_234', 'distance': 3073},
+                    {'source': 'NODE_234', 'target': '545424', 'distance': 2884},
+                    {'source': 'NODE_234', 'target': 'NODE_233', 'distance': 2884},
+                    {'source': 'NODE_233', 'target': 'NODE_223', 'distance': 2821},
+                    {'source': 'NODE_223', 'target': '545376', 'distance': 2629},
+                    {'source': 'NODE_223', 'target': 'NODE_219', 'distance': 2629},
+                    {'source': 'NODE_219', 'target': '544680', 'distance': 1582},
+                    {'source': 'NODE_219', 'target': '544900', 'distance': 1582},
+                    {'source': 'NODE_233', 'target': 'NODE_232', 'distance': 2821},
+                    {'source': 'NODE_232', 'target': 'NODE_230', 'distance': 2723},
+                    {'source': 'NODE_230', 'target': '546023', 'distance': 2699},
+                    {'source': 'NODE_230', 'target': 'NODE_222', 'distance': 2699},
+                    {'source': 'NODE_222', 'target': '544762', 'distance': 2617},
+                    {'source': 'NODE_222', 'target': '545163', 'distance': 2617},
+                    {'source': 'NODE_232', 'target': 'NODE_231', 'distance': 2723},
+                    {'source': 'NODE_231', 'target': 'NODE_228', 'distance': 2709},
+                    {'source': 'NODE_228', 'target': 'NODE_226', 'distance': 2694},
+                    {'source': 'NODE_226', 'target': '545980', 'distance': 2672},
+                    {'source': 'NODE_226', 'target': '546103', 'distance': 2672},
+                    {'source': 'NODE_228', 'target': 'NODE_227', 'distance': 2694},
+                    {'source': 'NODE_227', 'target': '545906', 'distance': 2685},
+                    {'source': 'NODE_227', 'target': 'NODE_225', 'distance': 2685},
+                    {'source': 'NODE_225', 'target': '544892', 'distance': 2659},
+                    {'source': 'NODE_225', 'target': '546197', 'distance': 2659},
+                    {'source': 'NODE_231', 'target': 'NODE_229', 'distance': 2709},
+                    {'source': 'NODE_229', 'target': '545804', 'distance': 2698},
+                    {'source': 'NODE_229', 'target': 'NODE_224', 'distance': 2698},
+                    {'source': 'NODE_224', 'target': '545624', 'distance': 2651},
+                    {'source': 'NODE_224', 'target': '545916', 'distance': 2651},
+                    {'source': 'NODE_246', 'target': 'NODE_214', 'distance': 10106},
+                    {'source': 'NODE_214', 'target': 'NODE_180', 'distance': 250},
+                    {'source': 'NODE_180', 'target': 'NODE_167', 'distance': 58},
+                    {'source': 'NODE_167', 'target': 'ISC49', 'distance': 42},
+                    {'source': 'NODE_167', 'target': 'ISC50', 'distance': 42},
+                    {'source': 'NODE_180', 'target': 'NODE_168', 'distance': 58},
+                    {'source': 'NODE_168', 'target': 'ISC22', 'distance': 45},
+                    {'source': 'NODE_168', 'target': 'ISC33', 'distance': 45},
+                    {'source': 'NODE_214', 'target': 'NODE_212', 'distance': 250},
+                    {'source': 'NODE_212', 'target': 'NODE_209', 'distance': 188},
+                    {'source': 'NODE_209', 'target': '545130', 'distance': 142},
+                    {'source': 'NODE_209', 'target': 'NODE_126', 'distance': 142},
+                    {'source': 'NODE_126', 'target': '545403', 'distance': 9},
+                    {'source': 'NODE_126', 'target': 'NODE_125', 'distance': 9},
+                    {'source': 'NODE_125', 'target': '545426', 'distance': 6},
+                    {'source': 'NODE_125', 'target': '545473', 'distance': 6},
+                    {'source': 'NODE_212', 'target': 'NODE_210', 'distance': 188},
+                    {'source': 'NODE_210', 'target': 'NODE_183', 'distance': 156},
+                    {'source': 'NODE_183', 'target': '546017', 'distance': 62},
+                    {'source': 'NODE_183', 'target': 'NODE_174', 'distance': 62},
+                    {'source': 'NODE_174', 'target': '544723', 'distance': 54},
+                    {'source': 'NODE_174', 'target': 'NODE_164', 'distance': 54},
+                    {'source': 'NODE_164', 'target': '544974', 'distance': 38},
+                    {'source': 'NODE_164', 'target': '545855', 'distance': 38},
+                    {'source': 'NODE_210', 'target': 'NODE_204', 'distance': 156},
+                    {'source': 'NODE_204', 'target': 'ISC26', 'distance': 121},
+                    {'source': 'NODE_204', 'target': 'NODE_201', 'distance': 121},
+                    {'source': 'NODE_201', 'target': '545330', 'distance': 106},
+                    {'source': 'NODE_201', 'target': 'NODE_199', 'distance': 106},
+                    {'source': 'NODE_199', 'target': 'NODE_166', 'distance': 99},
+                    {'source': 'NODE_166', 'target': '544663', 'distance': 39},
+                    {'source': 'NODE_166', 'target': '545991', 'distance': 39},
+                    {'source': 'NODE_199', 'target': 'NODE_185', 'distance': 99},
+                    {'source': 'NODE_185', 'target': '546156', 'distance': 67},
+                    {'source': 'NODE_185', 'target': 'NODE_182', 'distance': 67},
+                    {'source': 'NODE_182', 'target': '545169', 'distance': 62},
+                    {'source': 'NODE_182', 'target': '545899', 'distance': 62},
+                    {'source': 'NODE_246', 'target': 'NODE_245', 'distance': 10106},
+                    {'source': 'NODE_245', 'target': 'NODE_194', 'distance': 9729},
+                    {'source': 'NODE_194', 'target': 'NODE_172', 'distance': 88},
+                    {'source': 'NODE_172', 'target': 'ISC21', 'distance': 53},
+                    {'source': 'NODE_172', 'target': 'ISC25', 'distance': 53},
+                    {'source': 'NODE_194', 'target': 'NODE_190', 'distance': 88},
+                    {'source': 'NODE_190', 'target': '544689', 'distance': 77},
+                    {'source': 'NODE_190', 'target': 'NODE_184', 'distance': 77},
+                    {'source': 'NODE_184', 'target': 'NODE_173', 'distance': 64},
+                    {'source': 'NODE_173', 'target': 'ISC12', 'distance': 54},
+                    {'source': 'NODE_173', 'target': 'NODE_161', 'distance': 54},
+                    {'source': 'NODE_161', 'target': 'NODE_154', 'distance': 35},
+                    {'source': 'NODE_154', 'target': 'ISC09', 'distance': 31},
+                    {'source': 'NODE_154', 'target': 'ISC15', 'distance': 31},
+                    {'source': 'NODE_161', 'target': 'NODE_157', 'distance': 35},
+                    {'source': 'NODE_157', 'target': 'NODE_147', 'distance': 33},
+                    {'source': 'NODE_147', 'target': 'ISC04', 'distance': 27},
+                    {'source': 'NODE_147', 'target': 'ISC07', 'distance': 27},
+                    {'source': 'NODE_157', 'target': 'NODE_155', 'distance': 33},
+                    {'source': 'NODE_155', 'target': 'ISC36', 'distance': 31},
+                    {'source': 'NODE_155', 'target': 'NODE_143', 'distance': 31},
+                    {'source': 'NODE_143', 'target': 'ISC17', 'distance': 24},
+                    {'source': 'NODE_143', 'target': 'ISC30', 'distance': 24},
+                    {'source': 'NODE_184', 'target': 'NODE_176', 'distance': 64},
+                    {'source': 'NODE_176', 'target': 'ISC20', 'distance': 56},
+                    {'source': 'NODE_176', 'target': 'NODE_160', 'distance': 56},
+                    {'source': 'NODE_160', 'target': 'ISC35', 'distance': 34},
+                    {'source': 'NODE_160', 'target': 'NODE_156', 'distance': 34},
+                    {'source': 'NODE_156', 'target': 'NODE_142', 'distance': 32},
+                    {'source': 'NODE_142', 'target': 'ISC27', 'distance': 22},
+                    {'source': 'NODE_142', 'target': 'ISC34', 'distance': 22},
+                    {'source': 'NODE_156', 'target': 'NODE_145', 'distance': 32},
+                    {'source': 'NODE_145', 'target': 'ISC23', 'distance': 25},
+                    {'source': 'NODE_145', 'target': 'ISC28', 'distance': 25},
+                    {'source': 'NODE_245', 'target': 'NODE_244', 'distance': 9729},
+                    {'source': 'NODE_244', 'target': 'NODE_237', 'distance': 9033},
+                    {'source': 'NODE_237', 'target': 'NODE_163', 'distance': 3596},
+                    {'source': 'NODE_163', 'target': '544832', 'distance': 37},
+                    {'source': 'NODE_163', 'target': '545814', 'distance': 37},
+                    {'source': 'NODE_237', 'target': 'NODE_211', 'distance': 3596},
+                    {'source': 'NODE_211', 'target': 'NODE_205', 'distance': 177},
+                    {'source': 'NODE_205', 'target': 'NODE_189', 'distance': 135},
+                    {'source': 'NODE_189', 'target': '545889', 'distance': 77},
+                    {'source': 'NODE_189', 'target': 'NODE_141', 'distance': 77},
+                    {'source': 'NODE_141', 'target': '545011', 'distance': 22},
+                    {'source': 'NODE_141', 'target': 'NODE_131', 'distance': 22},
+                    {'source': 'NODE_131', 'target': '545781', 'distance': 14},
+                    {'source': 'NODE_131', 'target': '545907', 'distance': 14},
+                    {'source': 'NODE_205', 'target': 'NODE_202', 'distance': 135},
+                    {'source': 'NODE_202', 'target': 'ISC43', 'distance': 109},
+                    {'source': 'NODE_202', 'target': 'NODE_195', 'distance': 109},
+                    {'source': 'NODE_195', 'target': 'NODE_150', 'distance': 94},
+                    {'source': 'NODE_150', 'target': 'ISC38', 'distance': 28},
+                    {'source': 'NODE_150', 'target': 'ISC54', 'distance': 28},
+                    {'source': 'NODE_195', 'target': 'NODE_192', 'distance': 94},
+                    {'source': 'NODE_192', 'target': '545661', 'distance': 84},
+                    {'source': 'NODE_192', 'target': 'ISC14', 'distance': 84},
+                    {'source': 'NODE_211', 'target': 'NODE_208', 'distance': 177},
+                    {'source': 'NODE_208', 'target': 'ISC53', 'distance': 141},
+                    {'source': 'NODE_208', 'target': 'NODE_198', 'distance': 141},
+                    {'source': 'NODE_198', 'target': 'ISC18', 'distance': 98},
+                    {'source': 'NODE_198', 'target': 'NODE_191', 'distance': 98},
+                    {'source': 'NODE_191', 'target': 'ISC46', 'distance': 79},
+                    {'source': 'NODE_191', 'target': 'NODE_177', 'distance': 79},
+                    {'source': 'NODE_177', 'target': 'ISC51', 'distance': 56},
+                    {'source': 'NODE_177', 'target': 'NODE_146', 'distance': 56},
+                    {'source': 'NODE_146', 'target': 'ISC05', 'distance': 26},
+                    {'source': 'NODE_146', 'target': 'NODE_134', 'distance': 26},
+                    {'source': 'NODE_134', 'target': 'ISC19', 'distance': 15},
+                    {'source': 'NODE_134', 'target': 'NODE_130', 'distance': 15},
+                    {'source': 'NODE_130', 'target': 'ISC45', 'distance': 11},
+                    {'source': 'NODE_130', 'target': 'ISC55', 'distance': 11},
+                    {'source': 'NODE_244', 'target': 'NODE_243', 'distance': 9033},
+                    {'source': 'NODE_243', 'target': 'NODE_220', 'distance': 8597},
+                    {'source': 'NODE_220', 'target': 'NODE_207', 'distance': 1993},
+                    {'source': 'NODE_207', 'target': 'ISC11', 'distance': 138},
+                    {'source': 'NODE_207', 'target': 'NODE_196', 'distance': 138},
+                    {'source': 'NODE_196', 'target': 'ISC02', 'distance': 95},
+                    {'source': 'NODE_196', 'target': 'NODE_187', 'distance': 95},
+                    {'source': 'NODE_187', 'target': 'NODE_162', 'distance': 68},
+                    {'source': 'NODE_162', 'target': 'ISC29', 'distance': 36},
+                    {'source': 'NODE_162', 'target': 'NODE_153', 'distance': 36},
+                    {'source': 'NODE_153', 'target': 'ISC47', 'distance': 30},
+                    {'source': 'NODE_153', 'target': 'NODE_149', 'distance': 30},
+                    {'source': 'NODE_149', 'target': 'ISC44', 'distance': 27},
+                    {'source': 'NODE_149', 'target': 'NODE_148', 'distance': 27},
+                    {'source': 'NODE_148', 'target': 'NODE_140', 'distance': 27},
+                    {'source': 'NODE_140', 'target': 'ISC37', 'distance': 20},
+                    {'source': 'NODE_140', 'target': 'NODE_139', 'distance': 20},
+                    {'source': 'NODE_139', 'target': 'ISC01', 'distance': 18},
+                    {'source': 'NODE_139', 'target': 'NODE_135', 'distance': 18},
+                    {'source': 'NODE_135', 'target': 'NODE_124', 'distance': 16},
+                    {'source': 'NODE_124', 'target': 'ISC13', 'distance': 4},
+                    {'source': 'NODE_124', 'target': 'ISC39', 'distance': 4},
+                    {'source': 'NODE_135', 'target': 'NODE_129', 'distance': 16},
+                    {'source': 'NODE_129', 'target': 'ISC03', 'distance': 11},
+                    {'source': 'NODE_129', 'target': 'ISC41', 'distance': 11},
+                    {'source': 'NODE_148', 'target': 'NODE_144', 'distance': 27},
+                    {'source': 'NODE_144', 'target': 'ISC32', 'distance': 24},
+                    {'source': 'NODE_144', 'target': 'ISC52', 'distance': 24},
+                    {'source': 'NODE_187', 'target': 'NODE_171', 'distance': 68},
+                    {'source': 'NODE_171', 'target': 'ISC08', 'distance': 51},
+                    {'source': 'NODE_171', 'target': 'ISC57', 'distance': 51},
+                    {'source': 'NODE_220', 'target': 'NODE_218', 'distance': 1993},
+                    {'source': 'NODE_218', 'target': '544780', 'distance': 858},
+                    {'source': 'NODE_218', 'target': 'ISC31', 'distance': 858},
+                    {'source': 'NODE_243', 'target': 'NODE_242', 'distance': 8597},
+                    {'source': 'NODE_242', 'target': 'NODE_215', 'distance': 7323},
+                    {'source': 'NODE_215', 'target': '544651', 'distance': 319},
+                    {'source': 'NODE_215', 'target': 'NODE_188', 'distance': 319},
+                    {'source': 'NODE_188', 'target': 'NODE_175', 'distance': 70},
+                    {'source': 'NODE_175', 'target': 'NODE_137', 'distance': 55},
+                    {'source': 'NODE_137', 'target': '546076', 'distance': 17},
+                    {'source': 'NODE_137', 'target': 'NODE_132', 'distance': 17},
+                    {'source': 'NODE_132', 'target': '545933', 'distance': 15},
+                    {'source': 'NODE_132', 'target': 'NODE_127', 'distance': 15},
+                    {'source': 'NODE_127', 'target': '545925', 'distance': 10},
+                    {'source': 'NODE_127', 'target': '545967', 'distance': 10},
+                    {'source': 'NODE_175', 'target': 'NODE_170', 'distance': 55},
+                    {'source': 'NODE_170', 'target': '545833', 'distance': 49},
+                    {'source': 'NODE_170', 'target': '546234', 'distance': 49},
+                    {'source': 'NODE_188', 'target': 'NODE_179', 'distance': 70},
+                    {'source': 'NODE_179', 'target': '545836', 'distance': 57},
+                    {'source': 'NODE_179', 'target': 'NODE_178', 'distance': 57},
+                    {'source': 'NODE_178', 'target': '544798', 'distance': 56},
+                    {'source': 'NODE_178', 'target': 'NODE_169', 'distance': 56},
+                    {'source': 'NODE_169', 'target': '545068', 'distance': 49},
+                    {'source': 'NODE_169', 'target': '546083', 'distance': 49},
+                    {'source': 'NODE_242', 'target': 'NODE_241', 'distance': 7323},
+                    {'source': 'NODE_241', 'target': 'NODE_206', 'distance': 6745},
+                    {'source': 'NODE_206', 'target': 'NODE_151', 'distance': 137},
+                    {'source': 'NODE_151', 'target': '545048', 'distance': 28},
+                    {'source': 'NODE_151', 'target': '545142', 'distance': 28},
+                    {'source': 'NODE_206', 'target': 'NODE_197', 'distance': 137},
+                    {'source': 'NODE_197', 'target': 'NODE_136', 'distance': 97},
+                    {'source': 'NODE_136', 'target': '544789', 'distance': 17},
+                    {'source': 'NODE_136', 'target': 'NODE_128', 'distance': 17},
+                    {'source': 'NODE_128', 'target': '544803', 'distance': 10},
+                    {'source': 'NODE_128', 'target': '544989', 'distance': 10},
+                    {'source': 'NODE_197', 'target': 'NODE_193', 'distance': 97},
+                    {'source': 'NODE_193', 'target': 'NODE_138', 'distance': 85},
+                    {'source': 'NODE_138', 'target': 'ISC40', 'distance': 17},
+                    {'source': 'NODE_138', 'target': 'ISC56', 'distance': 17},
+                    {'source': 'NODE_193', 'target': 'NODE_165', 'distance': 85},
+                    {'source': 'NODE_165', 'target': '546095', 'distance': 39},
+                    {'source': 'NODE_165', 'target': 'NODE_158', 'distance': 39},
+                    {'source': 'NODE_158', 'target': '545164', 'distance': 33},
+                    {'source': 'NODE_158', 'target': '545567', 'distance': 33},
+                    {'source': 'NODE_241', 'target': 'NODE_240', 'distance': 6745},
+                    {'source': 'NODE_240', 'target': 'NODE_217', 'distance': 5805},
+                    {'source': 'NODE_217', 'target': 'NODE_186', 'distance': 606},
+                    {'source': 'NODE_186', 'target': '545271', 'distance': 68},
+                    {'source': 'NODE_186', 'target': '545786', 'distance': 68},
+                    {'source': 'NODE_217', 'target': 'NODE_216', 'distance': 606},
+                    {'source': 'NODE_216', 'target': '544732', 'distance': 377},
+                    {'source': 'NODE_216', 'target': 'NODE_203', 'distance': 377},
+                    {'source': 'NODE_203', 'target': 'NODE_159', 'distance': 112},
+                    {'source': 'NODE_159', 'target': 'ISC06', 'distance': 34},
+                    {'source': 'NODE_159', 'target': 'NODE_152', 'distance': 34},
+                    {'source': 'NODE_152', 'target': 'ISC16', 'distance': 28},
+                    {'source': 'NODE_152', 'target': 'NODE_133', 'distance': 28},
+                    {'source': 'NODE_133', 'target': 'ISC42', 'distance': 15},
+                    {'source': 'NODE_133', 'target': 'ISC48', 'distance': 15},
+                    {'source': 'NODE_203', 'target': 'NODE_200', 'distance': 112},
+                    {'source': 'NODE_200', 'target': '545555', 'distance': 100},
+                    {'source': 'NODE_200', 'target': '546019', 'distance': 100},
+                    {'source': 'NODE_240', 'target': 'NODE_239', 'distance': 5805},
+                    {'source': 'NODE_239', 'target': '546011', 'distance': 4945},
+                    {'source': 'NODE_239', 'target': 'NODE_238', 'distance': 4945},
+                    {'source': 'NODE_238', 'target': '544719', 'distance': 4269},
+                    {'source': 'NODE_238', 'target': 'NODE_236', 'distance': 4269},
+                    {'source': 'NODE_236', 'target': 'NODE_181', 'distance': 3292},
+                    {'source': 'NODE_181', 'target': '544758', 'distance': 60},
+                    {'source': 'NODE_181', 'target': '545831', 'distance': 60},
+                    {'source': 'NODE_236', 'target': 'NODE_235', 'distance': 3292},
+                    {'source': 'NODE_235', 'target': 'NODE_221', 'distance': 3073},
+                    {'source': 'NODE_221', 'target': '546073', 'distance': 2379},
+                    {'source': 'NODE_221', 'target': 'NODE_213', 'distance': 2379},
+                    {'source': 'NODE_213', 'target': '545457', 'distance': 250},
+                    {'source': 'NODE_213', 'target': '545734', 'distance': 250},
+                    {'source': 'NODE_235', 'target': 'NODE_234', 'distance': 3073},
+                    {'source': 'NODE_234', 'target': '545424', 'distance': 2884},
+                    {'source': 'NODE_234', 'target': 'NODE_233', 'distance': 2884},
+                    {'source': 'NODE_233', 'target': 'NODE_223', 'distance': 2821},
+                    {'source': 'NODE_223', 'target': '545376', 'distance': 2629},
+                    {'source': 'NODE_223', 'target': 'NODE_219', 'distance': 2629},
+                    {'source': 'NODE_219', 'target': '544680', 'distance': 1582},
+                    {'source': 'NODE_219', 'target': '544900', 'distance': 1582},
+                    {'source': 'NODE_233', 'target': 'NODE_232', 'distance': 2821},
+                    {'source': 'NODE_232', 'target': 'NODE_230', 'distance': 2723},
+                    {'source': 'NODE_230', 'target': '546023', 'distance': 2699},
+                    {'source': 'NODE_230', 'target': 'NODE_222', 'distance': 2699},
+                    {'source': 'NODE_222', 'target': '544762', 'distance': 2617},
+                    {'source': 'NODE_222', 'target': '545163', 'distance': 2617},
+                    {'source': 'NODE_232', 'target': 'NODE_231', 'distance': 2723},
+                    {'source': 'NODE_231', 'target': 'NODE_228', 'distance': 2709},
+                    {'source': 'NODE_228', 'target': 'NODE_226', 'distance': 2694},
+                    {'source': 'NODE_226', 'target': '545980', 'distance': 2672},
+                    {'source': 'NODE_226', 'target': '546103', 'distance': 2672},
+                    {'source': 'NODE_228', 'target': 'NODE_227', 'distance': 2694},
+                    {'source': 'NODE_227', 'target': '545906', 'distance': 2685},
+                    {'source': 'NODE_227', 'target': 'NODE_225', 'distance': 2685},
+                    {'source': 'NODE_225', 'target': '544892', 'distance': 2659},
+                    {'source': 'NODE_225', 'target': '546197', 'distance': 2659},
+                    {'source': 'NODE_231', 'target': 'NODE_229', 'distance': 2709},
+                    {'source': 'NODE_229', 'target': '545804', 'distance': 2698},
+                    {'source': 'NODE_229', 'target': 'NODE_224', 'distance': 2698},
+                    {'source': 'NODE_224', 'target': '545624', 'distance': 2651},
+                    {'source': 'NODE_224', 'target': '545916', 'distance': 2651}]  
+        };
+
+        //Colors 
+        //https://github.com/d3/d3-color/issues/11
+        var lookup = {};
+        var uniqueValues = [];
+
+        data.nodes.forEach(d => {
+            if (!(d.group in lookup)) {
+                lookup[d.group] = 1;
+                uniqueValues.push(d.group);
+            };
+        });
+        
+        var color = d3.scaleOrdinal()
+            .domain(uniqueValues)
+            .range(uniqueValues.map((group, i) => {
+                const t = i / uniqueValues.length;
+
+                return d3.hcl(t * 360, 50, 80);
+            }));
+        //*Colors
+
+        
+        render = (graph) => {
+        var label = {
+                'nodes': [],
+                'links': []
+            };
+
+        graph.nodes.forEach(function(d, i) {
+            label.nodes.push({node: d});
+            label.nodes.push({node: d});
+            label.links.push({
+                source: i * 2,
+                target: i * 2 + 1
+            });
+        });
+
+        console.log(label)
+        
+        var labelLayout = d3.forceSimulation(label.nodes)
+            .force("charge", d3.forceManyBody().strength(-50))
+            .force("link", d3.forceLink(label.links).distance(0).strength(2));
+
+        var graphLayout = d3.forceSimulation(graph.nodes)
+            .force("charge", d3.forceManyBody().strength(-2000))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("x", d3.forceX(width / 2).strength(1))
+            .force("y", d3.forceY(height / 2).strength(1))
+            .force("link", d3.forceLink(graph.links).id(d => d.id).distance(d => d.distance).strength(3))
+            .on("tick", ticked);
+        
+        var adjlist = [];
+
+        graph.links.forEach(function(d) {
+            adjlist[d.source.index + "-" + d.target.index] = true;
+            adjlist[d.target.index + "-" + d.source.index] = true;
+        });
+        //console.log(adjlist)
+        function neigh(a, b) {
+            return a == b || adjlist[a + "-" + b];
+        }
+
+
+        var svg = d3.select("#viz").attr("width", width).attr("height", height);
+        var container = svg.append("g");
+
+        svg.call(
+            d3.zoom()
+                .scaleExtent([.1, 4])
+                .on("zoom", function() { container.attr("transform", d3.event.transform); })
+        );
+
+        var link = container.append("g").attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter()
+            .append("line")
+            .attr("stroke", "#aaa")
+            .attr("stroke-width", "1px");
+
+        var node = container.append("g").attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes)
+            .enter()
+            .append("circle")
+            .attr("r", 10)
+            .attr("fill", function(d) { return color(d.group); })
+
+        node.on("mouseover", focus).on("mouseout", unfocus);
+
+        node.call(
+            d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended)
+        );
+
+        node.append("title")
+            .text(d => d.id + " : Group: " + d.group);
+
+        var labelNode = container.append("g").attr("class", "labelNodes")
+            .selectAll("text")
+            .data(label.nodes)
+            .enter()
+            .append("text")
+            .text(function(d, i) { return i % 2 == 0 ? "" : d.node.id; })
+            .style("fill", "#555")
+            .style("font-family", "Arial")
+            .style("font-size", 12)
+            .style("pointer-events", "none"); // to prevent mouseover/drag capture
+            
+        //labelLink
+        var textLink = g
+            .selectAll("text.link")
+            .data(label.links)
+            .enter()
+            .append("text")
+            .text(d => d.distance.toFixed(2))
+            .attr('fill', 'black');
+
+        node.on("mouseover", focus).on("mouseout", unfocus);
+
+        function ticked() {
+
+            node.call(updateNode);
+            link.call(updateLink);
+
+            labelLayout.alphaTarget(0.3).restart();
+            labelNode.each(function(d, i) {
+                if(i % 2 == 0) {
+                    d.x = d.node.x;
+                    d.y = d.node.y;
+                } else {
+                    var b = this.getBBox();
+
+                    var diffX = d.x - d.node.x;
+                    var diffY = d.y - d.node.y;
+
+                    var dist = Math.sqrt(diffX * diffX + diffY * diffY);
+
+                    var shiftX = b.width * (diffX - dist) / (dist * 2);
+                    shiftX = Math.max(-b.width, Math.min(0, shiftX));
+                    var shiftY = 16;
+                    this.setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
+                }
+            });
+            labelNode.call(updateNode);
+            
+
+        }
+
+        function fixna(x) {
+            if (isFinite(x)) return x;
+            return 0;
+        }
+
+        function focus(d) {
+            var index = d3.select(d3.event.target).datum().index;
+            //console.log(d3.select(d3.event.target).datum())
+            node.style("opacity", function(o) {
+                return neigh(index, o.index) ? 1 : 0.1;
+            });
+            labelNode.attr("display", function(o) {
+            return neigh(index, o.node.index) ? "block": "none";
+            });
+            link.style("opacity", function(o) {
+                return o.source.index == index || o.target.index == index ? 1 : 0.1;
+            });
+        }
+
+        function unfocus() {
+        labelNode.attr("display", "block");
+        node.style("opacity", 1);
+        link.style("opacity", 1);
+        }
+
+        function updateLink(link) {
+            link.attr("x1", function(d) { return fixna(d.source.x); })
+                .attr("y1", function(d) { return fixna(d.source.y); })
+                .attr("x2", function(d) { return fixna(d.target.x); })
+                .attr("y2", function(d) { return fixna(d.target.y); });
+        }
+
+        function updateNode(node) {
+            node.attr("transform", function(d) {
+                return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+            });
+        }
+
+        function dragstarted(d) {
+            d3.event.sourceEvent.stopPropagation();
+            if (!d3.event.active) graphLayout.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(d) {
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        }
+
+        function dragended(d) {
+            if (!d3.event.active) graphLayout.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        };
+        render(data)
+
+    </script>
+</html>
