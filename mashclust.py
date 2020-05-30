@@ -81,22 +81,16 @@ def mash_dist(input_file, output_dir, threads=10):
             command = subprocess.run(cmd,
             stdout=outfile, stderr=subprocess.PIPE, universal_newlines=True)
         if command.returncode == 0:
-            logger.info(GREEN + "Program %s successfully executed" % prog + END_FORMATTING)
+            logger.debug(GREEN + "Program %s successfully executed" % prog + END_FORMATTING)
         else:
-            logger.info (RED + BOLD + "Command %s FAILED\n" % prog + END_FORMATTING
+            logger.error(RED + BOLD + "Command %s FAILED\n" % prog + END_FORMATTING
                 + BOLD + "WITH PARAMETERS: " + END_FORMATTING + " ".join(param) + "\n"
                 + BOLD + "EXIT-CODE: %d\n" % command.returncode +
                 "ERROR:\n" + END_FORMATTING + command.stderr)
     except OSError as e:
         sys.exit(RED + BOLD + "failed to execute program '%s': %s" % (prog, str(e)) + END_FORMATTING)
 
-def find_mash_dist_file(folder):
-    folder = os.path.abspath(folder)
-    files = os.listdir(folder)
-    mash_file = [file for file in files if 'mash.distances.tab' in file][0]
-    mash_file_path = os.path.join(folder, mash_file)
-
-    return mash_file_path
+    return output_file
 
 def mash_dist_to_pairwise(distance_file, distance_type='hash_distance'):
     df = pd.read_csv(distance_file, sep='\t', names=['reference_ID', 'query_ID', 'distance', 'p_value', 'shared_hashes'])
@@ -107,10 +101,14 @@ def mash_dist_to_pairwise(distance_file, distance_type='hash_distance'):
     dfpair = df[['reference_ID', 'query_ID', distance_type]]
     
     return dfpair
+
 def pairwise_to_cluster(pw,threshold = 0.5):
     groups = {}
     columns = pw.columns.tolist()
     sorted_df = pw[(pw[columns[0]] != pw[columns[1]]) & (pw[columns[2]] <= threshold)].sort_values(by=[columns[2]])
+
+    print(pw.head())
+    print(sorted_df.shape)
     
     def rename_dict_clusters(cluster_dict):
         reordered_dict = {}
@@ -173,9 +171,12 @@ def pairwise_to_cluster(pw,threshold = 0.5):
     cluster_df = pd.DataFrame(groups.values(),index=list(groups))
     
     cluster_df_return = cluster_df.stack().droplevel(1).reset_index().rename(columns={'index': 'group', 0: 'id'})
-            
+
+    cluster_df_return.to_csv('/processing_Data/antibioticos/mperezv/ANALYSIS/Polimixinas_OTA/plasmidID/NO_GROUP/8c/mapping/test_cluster.tab', sep='\t')
+
     return cluster_df_return
 
+            
 def calculate_seqlen(fasta_file):
     len_df = pd.DataFrame(columns=['id','length'])
     index = 0
@@ -183,20 +184,29 @@ def calculate_seqlen(fasta_file):
         len_df.loc[index, 'id'] = seq_record.id
         len_df.loc[index, 'length'] = len(seq_record)
         index = index + 1
+    len_df['length'] = len_df.length.astype('int')
     return len_df
     
 def extract_representative(row):
     row.clustered.remove(row.id)
     return
 
-def retrieve_fasta_cluster(fasta_file, final_cluster, output_dir, quantity_id=1, save_clustered=False):
+def extract_length(row, final_cluster):
+    lengths = [final_cluster['length'][final_cluster.id == idclust].tolist()[0] for idclust in row.clustered]
+    return lengths
+
+def extract_distance(reprensetative, list_clustered, pwdist):
+    distances = [round(pwdist[pwdist.columns[2]][(pwdist[pwdist.columns[0]] == reprensetative) & (pwdist[pwdist.columns[1]] == idclust)].tolist()[0],2) for idclust in list_clustered]
+    return distances
+
+def retrieve_fasta_cluster(fasta_file, final_cluster, output_dir, pairwise, kmerdist, quantity_id=1, save_clustered=False):
     input_file = os.path.abspath(fasta_file)
     file_prefix = input_file.split('/')[-1]
     prefix = ('.').join(file_prefix.split('.')[0:-1])
     
-    output_representative = os.path.join(output_dir, prefix + '.representative.fasta')
-    output_clustered = os.path.join(output_dir, prefix + '.clustered.fasta')
-    output_summary = os.path.join(output_dir, prefix + '.clusters.tab')
+    output_representative = os.path.join(output_dir, prefix + '.' + str(kmerdist) + '.representative.fasta')
+    output_clustered = os.path.join(output_dir, prefix +  '.' + str(kmerdist) + '.clustered.fasta')
+    output_summary = os.path.join(output_dir, prefix + '.' + str(kmerdist) + '.clusters.tab')
     
     representative_id = final_cluster.sort_values(by=['group', 'length'], ascending=[True, False]).groupby('group').head(quantity_id)
     summary_id_grouped = final_cluster.groupby('group')['id'].apply(list).reset_index(name='clustered')
@@ -204,7 +214,8 @@ def retrieve_fasta_cluster(fasta_file, final_cluster, output_dir, quantity_id=1,
     representative_and_sumary = representative_id.merge(summary_id_grouped, on='group', how='left')
     #Use function extract_representative to remove the repr. from column
     representative_and_sumary.apply(extract_representative, axis=1)
-    
+    representative_and_sumary['lengths_clustered'] = representative_and_sumary.apply(lambda x: extract_length(x, final_cluster), axis=1)
+    representative_and_sumary['distance_clustered'] = representative_and_sumary.apply(lambda x: extract_distance(x.id, x.clustered, pairwise), axis=1)
     #read the fasta and retrieve representative sequences
     representative_records = []
     clustered_records = []
@@ -221,6 +232,12 @@ def retrieve_fasta_cluster(fasta_file, final_cluster, output_dir, quantity_id=1,
         
     representative_and_sumary.to_csv(output_summary, sep='\t', index=False)
 
+    previous_seq = final_cluster.shape[0]
+    post_seq = representative_and_sumary.shape[0]
+
+    logger.info(MAGENTA + "%s sequences clustered into %s" % (previous_seq, post_seq) + END_FORMATTING)
+
+
 
     
 
@@ -232,7 +249,8 @@ def main():
         
         parser.add_argument('-i', '--input', dest="input_file", metavar="input_directory", type=str, required=True, help='REQUIRED.Input FASTA file')
         parser.add_argument('-o', '--output', type=str, required=False, default=False, help='Output directory to extract clusteres FASTA')
-        parser.add_argument('-d', '--distance', required=False, default=0.5, help='Threshold distance to cluster sequences[0-1] 0(identical) 1(unrelated) (default 0.5)')
+        parser.add_argument('-d', '--distance', type=float, required=False, default=0.5, help='Threshold distance to cluster sequences[0-1] 0(identical) 1(unrelated) (default 0.5)')
+        parser.add_argument('-g', '--output_grouped', required=False,  action='store_true', help='Output clustered (non representative sequences')
 
         arguments = parser.parse_args()
 
@@ -247,8 +265,6 @@ def main():
     else:
         output_dir = os.path.abspath(args.output)
     
-    print(output_dir)
-
     check_create_dir(output_dir)
 
 
@@ -279,25 +295,18 @@ def main():
     #####################START PIPELINE################
 
     logger.info(args)
-
     #CALCULATE MASH DISTANCE
     logger.info('Obtaining mash distance')
-    mash_dist(input_file, output_dir, threads=10)
+    mash_file = mash_dist(input_file, output_dir, threads=10)
     logger.info('Obtaining cluster from distance')
-    mash_file = find_mash_dist_file('/home/pjsola/TMP/mashclust_test/')
     pairwise_distance = mash_dist_to_pairwise(mash_file)
-
-   #cluster_df.to_csv('/home/pjsola/TMP/mashclust_test/test.tab', sep='\t')
-
-    pairwise_distance.to_csv('/home/pjsola/TMP/mashclust_test/test.tab', sep='\t', index=False)
-    print('THR', args.distance)
     cluster_df = pairwise_to_cluster(pairwise_distance, threshold=args.distance)
     logger.info('Calculating length')
     len_df = calculate_seqlen(input_file)
     final_cluster = cluster_df.merge(len_df, on='id', how='left')
     logger.info('Filtering representative fasta')
-    retrieve_fasta_cluster(input_file, final_cluster, output_dir, quantity_id=1, save_clustered=True)
-
+    retrieve_fasta_cluster(input_file, final_cluster, output_dir, pairwise_distance, args.distance, quantity_id=1, save_clustered=args.output_grouped)
+    logger.info('DONE')
 
 if __name__ == '__main__':
     try:
