@@ -176,6 +176,78 @@ def pairwise_to_cluster(pw,threshold = 0.5):
 
     return cluster_df_return
 
+def big_pairwise_to_cluster(pw,threshold = 0.5):
+    
+    def rename_dict_clusters(cluster_dict):
+        reordered_dict = {}
+        for i, k in enumerate(list(cluster_dict)):
+            reordered_dict[i] = cluster_dict[k]
+        return reordered_dict
+    
+    def regroup_clusters(list_keys, groups_dict, both_samples_list):
+        #sum previous clusters
+        list_keys.sort()
+        new_cluster = sum([groups_dict[key] for key in list_keys], [])
+        #add new cluster
+        cluster_asign = list(set(new_cluster + both_samples_list))
+        #Remove duped cluster
+        first_cluster = list_keys[0]
+        groups_dict[first_cluster] = cluster_asign
+        rest_cluster = list_keys[1:]
+        for key in rest_cluster:
+            del groups_dict[key]
+        groups_dict = rename_dict_clusters(groups_dict)
+        return groups_dict
+    
+    groups = {}
+    
+    with open(pw, "r") as f:
+        for line in f:
+            line_split = line.split('\t')
+            sample_1 = line_split[0]
+            sample_2 = line_split[1]
+            hash1, hash2 = line_split[4].split('/')
+            hash_distance = 1 - (int(hash1) / int(hash2))
+
+            if hash_distance <= threshold:
+                group_number = len(groups)
+
+                both_samples_list = [sample_1,sample_2]
+
+                if group_number == 0:
+                    groups[group_number] = both_samples_list
+
+                all_samples_dict = sum(groups.values(), [])
+
+                if sample_1 in all_samples_dict or sample_2 in all_samples_dict:
+                    #extract cluster which have the new samples
+                    key_with_sample = {key for (key,value) in groups.items() if (sample_1 in value or sample_2 in value)}
+
+                    cluster_with_sample = list(key_with_sample)
+                    cluster_with_sample_name = cluster_with_sample[0]
+                    number_of_shared_clusters = len(key_with_sample)
+                    if number_of_shared_clusters > 1:
+                        groups = regroup_clusters(cluster_with_sample, groups, both_samples_list)
+                    else:
+                        groups[cluster_with_sample_name] = list(set(groups[cluster_with_sample_name] + both_samples_list))
+                else:
+                    groups[group_number] = both_samples_list
+            else:
+                if sample_1 not in all_samples_dict:
+                    group_number = len(groups)
+                    groups[group_number] = [sample_1]
+
+                if sample_2 not in all_samples_dict:
+                    group_number = len(groups)
+                    groups[group_number] = [sample_2]
+            
+    cluster_df = pd.DataFrame(groups.values(),index=list(groups))
+    
+    cluster_df_return = cluster_df.stack().droplevel(1).reset_index().rename(columns={'index': 'group', 0: 'id'})
+
+    cluster_df_return.to_csv('/processing_Data/bioinformatics/references/plasmidID/plasmid_ddbb/20200203/test_ddbb.csv')
+            
+    return cluster_df_return
             
 def calculate_seqlen(fasta_file):
     len_df = pd.DataFrame(columns=['id','length'])
@@ -195,11 +267,25 @@ def extract_length(row, final_cluster):
     lengths = [final_cluster['length'][final_cluster.id == idclust].tolist()[0] for idclust in row.clustered]
     return lengths
 
-def extract_distance(reprensetative, list_clustered, pwdist):
+def extract_distance_legacy(reprensetative, list_clustered, pwdist):
     distances = [round(pwdist[pwdist.columns[2]][(pwdist[pwdist.columns[0]] == reprensetative) & (pwdist[pwdist.columns[1]] == idclust)].tolist()[0],2) for idclust in list_clustered]
     return distances
 
-def retrieve_fasta_cluster(fasta_file, final_cluster, output_dir, pairwise, kmerdist, quantity_id=1, save_clustered=False):
+def extract_distance(reprensetative, list_clustered, mash_file):
+    distances = []
+    for idclust in list_clustered:
+        with open(mash_file, "r") as f:
+            for line in f:
+                line_split = line.split('\t')
+                sample_1 = line_split[0]
+                sample_2 = line_split[1]
+                if sample_1 == reprensetative and sample_2 == idclust:
+                    hash1, hash2 = line_split[4].split('/')
+                    hash_distance = 1 - (int(hash1) / int(hash2)) 
+                    distances.append(hash_distance)
+    return distances
+
+def retrieve_fasta_cluster(fasta_file, final_cluster, output_dir, mash_file, kmerdist, quantity_id=1, save_clustered=False):
     input_file = os.path.abspath(fasta_file)
     file_prefix = input_file.split('/')[-1]
     prefix = ('.').join(file_prefix.split('.')[0:-1])
@@ -215,7 +301,7 @@ def retrieve_fasta_cluster(fasta_file, final_cluster, output_dir, pairwise, kmer
     #Use function extract_representative to remove the repr. from column
     representative_and_sumary.apply(extract_representative, axis=1)
     representative_and_sumary['lengths_clustered'] = representative_and_sumary.apply(lambda x: extract_length(x, final_cluster), axis=1)
-    representative_and_sumary['distance_clustered'] = representative_and_sumary.apply(lambda x: extract_distance(x.id, x.clustered, pairwise), axis=1)
+    representative_and_sumary['distance_clustered'] = representative_and_sumary.apply(lambda x: extract_distance(x.id, x.clustered, mash_file), axis=1)
     #read the fasta and retrieve representative sequences
     representative_records = []
     clustered_records = []
@@ -299,13 +385,14 @@ def main():
     logger.info('Obtaining mash distance')
     mash_file = mash_dist(input_file, output_dir, threads=10)
     logger.info('Obtaining cluster from distance')
-    pairwise_distance = mash_dist_to_pairwise(mash_file)
-    cluster_df = pairwise_to_cluster(pairwise_distance, threshold=args.distance)
+    #pairwise_distance = mash_dist_to_pairwise(mash_file)
+    #cluster_df = pairwise_to_cluster(pairwise_distance, threshold=args.distance)
+    cluster_df = big_pairwise_to_cluster(mash_file, threshold=args.distance)
     logger.info('Calculating length')
     len_df = calculate_seqlen(input_file)
     final_cluster = cluster_df.merge(len_df, on='id', how='left')
     logger.info('Filtering representative fasta')
-    retrieve_fasta_cluster(input_file, final_cluster, output_dir, pairwise_distance, args.distance, quantity_id=1, save_clustered=args.output_grouped)
+    retrieve_fasta_cluster(input_file, final_cluster, output_dir, mash_file, args.distance, quantity_id=1, save_clustered=args.output_grouped)
     logger.info('DONE')
 
 if __name__ == '__main__':
