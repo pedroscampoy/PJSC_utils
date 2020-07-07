@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--https://bl.ocks.org/mapio/53fed7d84cd1812d6a6639ed7aa83868-->
+        <title>SNP to Network</title>
+        <style>
+        body {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        text {
+            font-size: 0.5em;
+        }
+
+        .node:hover {
+            stroke: black;
+        }
+
+        </style>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+    </head>
+    <body>
+        <svg id='viz'></svg>
+    </body>
+
+    <script>
+        
+        const svg = d3.select('svg');
+        
+        const width = document.body.clientWidth;
+        const height = document.body.clientHeight;
+
+        svg.attr('width', width)
+            .attr('height', height)
+            .append('rect')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('rx', 40)
+            .attr('fill', 'none');
+        
+        data = {
+            "nodes": [{'id': 'K12591', 'group': 1},
+                    {'id': 'K12592', 'group': 1},
+                    {'id': 'K12593', 'group': 1},
+                    {'id': 'K12594', 'group': 1},
+                    {'id': 'K12595', 'group': 1},
+                    {'id': 'K12596', 'group': 1},
+                    {'id': 'K12597', 'group': 2},
+                    {'id': 'K12598', 'group': 2},
+                    {'id': 'K12599', 'group': 2},
+                    {'id': 'K12600', 'group': 1},
+                    {'id': 'K12601', 'group': 1},
+                    {'id': 'K12602', 'group': 1},
+                    {'id': 'K12603', 'group': 1},
+                    {'id': 'K12604', 'group': 1},
+                    {'id': 'K12605', 'group': 2},
+                    {'id': 'K12606', 'group': 1},
+                    {'id': 'K12607', 'group': 1},
+                    {'id': 'K12608', 'group': 3},
+                    {'id': 'K12609', 'group': 4},
+                    {'id': 'K12610', 'group': 1},
+                    {'id': 'K12611', 'group': 1},
+                    {'id': 'K12612', 'group': 1},
+                    {'id': 'K12613', 'group': 1},
+                    {'id': 'K12614', 'group': 1},
+                    {'id': 'K12615', 'group': 1},
+                    {'id': 'K12616', 'group': 1},
+                    {'id': 'K12617', 'group': 1},
+                    {'id': 'K12618', 'group': 3}],
+        "links": [{'source': 'K12593', 'target': 'K12592', 'distance': 3},
+                    {'source': 'K12595', 'target': 'K12593', 'distance': 2},
+                    {'source': 'K12595', 'target': 'K12611', 'distance': 2},
+                    {'source': 'K12596', 'target': 'K12600', 'distance': 3},
+                    {'source': 'K12597', 'target': 'K12605', 'distance': 2},
+                    {'source': 'K12598', 'target': 'K12597', 'distance': 1},
+                    {'source': 'K12599', 'target': 'K12598', 'distance': 2},
+                    {'source': 'K12601', 'target': 'K12591', 'distance': 1},
+                    {'source': 'K12601', 'target': 'K12596', 'distance': 1},
+                    {'source': 'K12601', 'target': 'K12615', 'distance': 1},
+                    {'source': 'K12603', 'target': 'K12594', 'distance': 2},
+                    {'source': 'K12603', 'target': 'K12595', 'distance': 1},
+                    {'source': 'K12604', 'target': 'K12606', 'distance': 2},
+                    {'source': 'K12606', 'target': 'K12602', 'distance': 2},
+                    {'source': 'K12608', 'target': 'K12618', 'distance': 2},
+                    {'source': 'K12609', 'target': 'K12598', 'distance': 1874},
+                    {'source': 'K12610', 'target': 'K12593', 'distance': 2},
+                    {'source': 'K12611', 'target': 'K12612', 'distance': 3},
+                    {'source': 'K12611', 'target': 'K12618', 'distance': 1914},
+                    {'source': 'K12613', 'target': 'K12607', 'distance': 6},
+                    {'source': 'K12614', 'target': 'K12591', 'distance': 1},
+                    {'source': 'K12614', 'target': 'K12604', 'distance': 1},
+                    {'source': 'K12615', 'target': 'K12607', 'distance': 1},
+                    {'source': 'K12615', 'target': 'K12617', 'distance': 2},
+                    {'source': 'K12616', 'target': 'K12591', 'distance': 1},
+                    {'source': 'K12616', 'target': 'K12610', 'distance': 1},
+                    {'source': 'K12618', 'target': 'K12605', 'distance': 1925}]
+        };
+
+        //Colors 
+        //https://github.com/d3/d3-color/issues/11
+        var lookup = {};
+        var uniqueValues = [];
+
+        data.nodes.forEach(d => {
+            if (!(d.group in lookup)) {
+                lookup[d.group] = 1;
+                uniqueValues.push(d.group);
+            };
+        });
+        
+        var color = d3.scaleOrdinal()
+            .domain(uniqueValues)
+            .range(uniqueValues.map((group, i) => {
+                const t = i / uniqueValues.length;
+
+                return d3.hcl(t * 360, 50, 80);
+            }));
+        //*Colors
+
+        
+        render = (graph) => {
+        var label = {
+                'nodes': [],
+                'links': []
+            };
+
+        graph.nodes.forEach(function(d, i) {
+            label.nodes.push({node: d});
+            label.nodes.push({node: d});
+            label.links.push({
+                source: i * 2,
+                target: i * 2 + 1
+            });
+        });
+
+        console.log(label)
+        
+        var labelLayout = d3.forceSimulation(label.nodes)
+            .force("charge", d3.forceManyBody().strength(-50))
+            .force("link", d3.forceLink(label.links).distance(0).strength(2));
+
+        var graphLayout = d3.forceSimulation(graph.nodes)
+            .force("charge", d3.forceManyBody().strength(-1000))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("x", d3.forceX(width / 2).strength(0.2))
+            .force("y", d3.forceY(height / 2).strength(0.2))
+            .force("link", d3.forceLink(graph.links)
+                .id(d => d.id)
+                .distance(d => d.distance / 500)
+                .strength(3))
+            .on("tick", ticked);
+
+
+            /*var simulation = d3.forceSimulation(data.nodes)                 // Force algorithm is applied to data.nodes
+                .force("link", d3.forceLink()                               // This force provides links between nodes
+                        .id(function(d) {return d.id;})                     // This provide  the id of a node
+                        .links(data.links)                                     // and this the list of links
+                        .distance(d => d.distance / 100)
+                        .strength(1)                                    
+                )
+                .force("charge", d3.forceManyBody().strength(-300))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+                .force("center", d3.forceCenter(width / 2, height / 2))     // This force attracts nodes to the center of the svg area
+                .on("end", ticked);*/
+        
+        var adjlist = [];
+
+        graph.links.forEach(function(d) {
+            adjlist[d.source.index + "-" + d.target.index] = true;
+            adjlist[d.target.index + "-" + d.source.index] = true;
+        });
+        //console.log(adjlist)
+        function neigh(a, b) {
+            return a == b || adjlist[a + "-" + b];
+        }
+
+
+        var svg = d3.select("#viz").attr("width", width).attr("height", height);
+        var container = svg.append("g");
+
+        svg.call(
+            d3.zoom()
+                .scaleExtent([.1, 4])
+                .on("zoom", function() { container.attr("transform", d3.event.transform); })
+        );
+
+        var link = container.append("g").attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter()
+            .append("line")
+            .attr("stroke", "#aaa")
+            .style("stroke-width", d => (1 / d.distance) * 2.5 + 1);
+
+        var node = container.append("g").attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes)
+            .enter()
+            .append("circle")
+            .attr("r", 10)
+            .attr("fill", function(d) { return color(d.group); })
+
+        node.on("mouseover", focus).on("mouseout", unfocus);
+
+        node.call(
+            d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended)
+        );
+
+        node.append("title")
+            .text(d => d.id + " : Group: " + d.group);
+
+        var labelNode = container.append("g").attr("class", "labelNodes")
+            .selectAll("text")
+            .data(label.nodes)
+            .enter()
+            .append("text")
+            .text(function(d, i) { return i % 2 == 0 ? "" : d.node.id; })
+            .style("fill", "#555")
+            .style("font-family", "Arial")
+            .style("font-size", 12)
+            .style("pointer-events", "none"); // to prevent mouseover/drag capture
+            
+        //labelLink
+        var textLink = g
+            .selectAll("text.link")
+            .data(label.links)
+            .enter()
+            .append("text")
+            .text(d => d.distance.toFixed(2))
+            .attr('fill', 'black');
+
+        node.on("mouseover", focus).on("mouseout", unfocus);
+
+        function ticked() {
+
+            node.call(updateNode);
+            link.call(updateLink);
+
+            labelLayout.alphaTarget(0.3).restart();
+            labelNode.each(function(d, i) {
+                if(i % 2 == 0) {
+                    d.x = d.node.x;
+                    d.y = d.node.y;
+                } else {
+                    var b = this.getBBox();
+
+                    var diffX = d.x - d.node.x;
+                    var diffY = d.y - d.node.y;
+
+                    var dist = Math.sqrt(diffX * diffX + diffY * diffY);
+
+                    var shiftX = b.width * (diffX - dist) / (dist * 2);
+                    shiftX = Math.max(-b.width, Math.min(0, shiftX));
+                    var shiftY = 16;
+                    this.setAttribute("transform", "translate(" + shiftX + "," + shiftY + ")");
+                }
+            });
+            labelNode.call(updateNode);
+            
+
+        }
+
+        function fixna(x) {
+            if (isFinite(x)) return x;
+            return 0;
+        }
+
+        function focus(d) {
+            var index = d3.select(d3.event.target).datum().index;
+            //console.log(d3.select(d3.event.target).datum())
+            node.style("opacity", function(o) {
+                return neigh(index, o.index) ? 1 : 0.1;
+            });
+            labelNode.attr("display", function(o) {
+            return neigh(index, o.node.index) ? "block": "none";
+            });
+            link.style("opacity", function(o) {
+                return o.source.index == index || o.target.index == index ? 1 : 0.1;
+            });
+        }
+
+        function unfocus() {
+        labelNode.attr("display", "block");
+        node.style("opacity", 1);
+        link.style("opacity", 1);
+        }
+
+        function updateLink(link) {
+            link.attr("x1", function(d) { return fixna(d.source.x); })
+                .attr("y1", function(d) { return fixna(d.source.y); })
+                .attr("x2", function(d) { return fixna(d.target.x); })
+                .attr("y2", function(d) { return fixna(d.target.y); });
+        }
+
+        function updateNode(node) {
+            node.attr("transform", function(d) {
+                return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+            });
+        }
+
+        function dragstarted(d) {
+            d3.event.sourceEvent.stopPropagation();
+            if (!d3.event.active) graphLayout.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(d) {
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        }
+
+        function dragended(d) {
+            if (!d3.event.active) graphLayout.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        };
+        render(data)
+
+    </script>
+</html>
