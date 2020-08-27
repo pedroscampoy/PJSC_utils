@@ -19,7 +19,7 @@ logger = logging.getLogger()
 =============================================================
 HEADER
 =============================================================
-FUNCTION: Asign a group number according to the distance between samples supplied in matrix format
+FUNCTION: Asign a group number according to the distance between samples supplied in csv lower left matrix format
 
 INSTITUTION:CNM-ISCIII
 AUTHOR: Pedro J. Sola (pedroscampoy@gmail.com)
@@ -54,6 +54,18 @@ def check_create_dir(path):
         pass
     else:
         os.mkdir(path)
+
+def calculate_distance_stat(dataframe, list_sample=False):
+    if list_sample != False:
+        dataframe = dataframe.loc[list_sample,list_sample]
+    stacked_df = dataframe.stack()
+    #np.nanmean(dfdist.loc[cluster_test,cluster_test].values)
+    #np.nanmin(dfdist.loc[cluster_test,cluster_test].values)
+    #np.nanmax(dfdist.loc[cluster_test,cluster_test].values)
+    mean_distance = stacked_df.mean(skipna = True)
+    min_distance = stacked_df.min(skipna = True)
+    max_distance = stacked_df.max(skipna = True)
+    return ("This cluster has %s samples, with a mean distance on %.2f, range [%.0f - %.0f]" % (len(dataframe.columns), mean_distance, min_distance, max_distance))
 
 def pairwise_to_cluster(pw,threshold = 20):
     groups = {}
@@ -239,12 +251,18 @@ def main():
     cluster_summary[['mean', 'min', 'max']] = cluster_summary.apply(lambda x: calculate_mean_distance(x, dfdist), axis=1, result_type="expand")
 
     final_cluster = cluster_summary[["group", "samples"]].explode("samples").reset_index(drop=True)
+    final_cluster = final_cluster.sort_values(by=['group'], ascending=True)
 
-    final_cluster_file = os.path.join(output_dir, "group_table.tsv")
-    cluster_summary_file = os.path.join(output_dir, "group_summary.tsv")
+    overal_stats = calculate_distance_stat(dfdist)
+
+    final_cluster_file = os.path.join(output_dir, "group_table_" + str(args.distance) + ".tsv")
+    cluster_summary_file = os.path.join(output_dir, "group_summary_" + str(args.distance) + ".tsv")
+    overall_summary_file = os.path.join(output_dir, "group_summary_stats_" + str(args.distance) + ".txt")
 
     cluster_summary.to_csv(cluster_summary_file, sep='\t', index=False)
     final_cluster.to_csv(final_cluster_file, sep='\t', index=False)
+    with open (overall_summary_file, 'w+') as f:
+        f.write(overal_stats)
 
     logger.info('DONE')
 
