@@ -63,6 +63,8 @@ def extractCoordinatesAndSAmples(plateDf):
     coordinateList = np.argwhere(plateDf.notnull().values).tolist()
     finalCoordinates = [transformCoordinates(x) for x in coordinateList]
 
+    finalCoordinates = ["'%s'" % (x) for x in finalCoordinates]
+
     sampleNames = [obtainSampleName(x) for x in coordinateList]
 
     return finalCoordinates, sampleNames
