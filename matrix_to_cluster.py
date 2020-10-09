@@ -141,8 +141,9 @@ def seqsphere_matrix(df):
     index_name = df.index.name
     new_index = [index_name] + df.index.tolist()
     df.columns.name = None
+    df['Last'] = [np.nan] * len(df.index)
     df.columns = new_index
-    df1 = pd.DataFrame([[np.nan] * len(df.columns)], columns=new_index, index=[index_name])
+    df1 = pd.DataFrame([[np.nan] * len(new_index)], columns=new_index, index=[index_name])
     df2 = df1.append(df)
     df2 = df2.astype('float')
     return df2
@@ -183,6 +184,7 @@ def main():
         
         parser.add_argument('-i', '--input', dest="input_file", metavar="input_directory", type=str, required=True, help='REQUIRED.Input FASTA file')
         parser.add_argument('-o', '--output', type=str, required=False, default=False, help='Output directory to extract clusteres FASTA')
+        parser.add_argument('-s', '--seqsphere', default=False, action='store_true', required=False, help='Indicate a seqsphere matrix')
         parser.add_argument('-d', '--distance', type=float, required=False, default=15, help='Threshold distance to cluster sequences (default 15)')
 
         arguments = parser.parse_args()
@@ -232,8 +234,8 @@ def main():
     logger.info('Reading Matrix')
     decimal = extraxt_decimal(input_file)
     dfdist = pd.read_csv(input_file, index_col=0, sep=",", decimal=decimal)
-    if len(dfdist.index) != len(dfdist.columns) :
-        logger.info('SeqSphere matrix detected')
+    if args.seqsphere == True :
+        logger.info('SeqSphere matrix adapted')
         dfdist = seqsphere_matrix(dfdist)
     logger.info('Making pairwise')
     pairwise = dfdist.stack().reset_index(name='distance').rename(columns={'level_0': 'sample_1', 'level_1': 'sample_2'})

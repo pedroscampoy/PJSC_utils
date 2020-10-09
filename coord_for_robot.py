@@ -130,7 +130,7 @@ def main():
     right_now = str(datetime.date.today())
     right_now_full = "_".join(right_now.split(" "))
 
-    log_filename = 'mashclust' + "_" + right_now_full + ".log"
+    log_filename = 'coords_for_robot' + "_" + right_now_full + ".log"
     log_full_path = os.path.join(output_dir, log_filename)
 
     logger = logging.getLogger()
