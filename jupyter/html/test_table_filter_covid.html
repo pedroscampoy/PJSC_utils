@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        body {
+        font: 90%/1.45em "Helvetica Neue", HelveticaNeue, Verdana, Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        background-color: #fff;
+        }
+    </style>
+  <head>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="https://nightly.datatables.net/css/dataTables.bootstrap4.css" rel="stylesheet" type="text/css" />
+
+
+    <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
+    <script src="https://nightly.datatables.net/js/dataTables.bootstrap4.js"></script>
+
+    
+    <meta charset=utf-8 />
+    <title>DataTables - JS Bin</title>
+  </head>
+  <body>
+    <div class="container-fluid">
+        <table id="variants" class="table table-striped table-bordered nowrap" width="100%">
+            <thead>
+            <tr><th>#CHROM     </th><th >  POS</th><th>REF  </th><th>ALT       </th><th>Codon_change  </th><th>AA_change  </th><th >  DP</th><th >  ALT_FREQ</th><th>Annotation                 </th><th>Annotation_Impact  </th><th>Gene_Name  </th><th>HGVS.p            </th><th>variable           </th></tr>
+            <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr><td>NC_045512.2</td><td > 3828</td><td>C    </td><td>T         </td><td>TCA-TTA       </td><td>S-L        </td><td > 955</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Ser1188Leu        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td > 5648</td><td>A    </td><td>C         </td><td>AAA-CAA       </td><td>K-Q        </td><td >1270</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Lys1795Gln        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >11287</td><td>G    </td><td>-TCTGGTTTT</td><td>.-.           </td><td>.-.        </td><td >2074</td><td >      0.92</td><td>disruptive_inframe_deletion</td><td>MODERATE           </td><td>ORF1ab     </td><td>Leu3674_Gly3676del</td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >17259</td><td>G    </td><td>T         </td><td>GAG-GAT       </td><td>E-D        </td><td >1739</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Glu5665Asp        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21614</td><td>C    </td><td>T         </td><td>CTT-TTT       </td><td>L-F        </td><td > 719</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Leu18Phe          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21621</td><td>C    </td><td>A         </td><td>ACC-AAC       </td><td>T-N        </td><td > 708</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Thr20Asn          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21638</td><td>C    </td><td>T         </td><td>CCT-TCT       </td><td>P-S        </td><td > 675</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Pro26Ser          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21974</td><td>G    </td><td>T         </td><td>GAT-TAT       </td><td>D-Y        </td><td >   8</td><td >      0.5 </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Asp138Tyr         </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >22132</td><td>G    </td><td>T         </td><td>AGG-AGT       </td><td>R-S        </td><td >   8</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Arg190Ser         </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >22812</td><td>A    </td><td>C         </td><td>AAG-ACG       </td><td>K-T        </td><td > 987</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Lys417Thr         </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >23525</td><td>C    </td><td>T         </td><td>CAT-TAT       </td><td>H-Y        </td><td >   2</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>His655Tyr         </td><td>REGN10987+REGN10933</td></tr>
+            <tr><td>NC_045512.2</td><td >24642</td><td>C    </td><td>T         </td><td>ACT-ATT       </td><td>T-I        </td><td >1670</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Thr1027Ile        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >28167</td><td>G    </td><td>A         </td><td>GAA-AAA       </td><td>E-K        </td><td > 996</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF8       </td><td>Glu92Lys          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >28512</td><td>C    </td><td>G         </td><td>CCA-CGA       </td><td>P-R        </td><td >1289</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>N          </td><td>Pro80Arg          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td > 3828</td><td>C    </td><td>T         </td><td>TCA-TTA       </td><td>S-L        </td><td > 955</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Ser1188Leu        </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td > 5648</td><td>A    </td><td>C         </td><td>AAA-CAA       </td><td>K-Q        </td><td >1270</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Lys1795Gln        </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >11287</td><td>G    </td><td>-TCTGGTTTT</td><td>.-.           </td><td>.-.        </td><td >2074</td><td >      0.92</td><td>disruptive_inframe_deletion</td><td>MODERATE           </td><td>ORF1ab     </td><td>Leu3674_Gly3676del</td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >17259</td><td>G    </td><td>T         </td><td>GAG-GAT       </td><td>E-D        </td><td >1739</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Glu5665Asp        </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >21614</td><td>C    </td><td>T         </td><td>CTT-TTT       </td><td>L-F        </td><td > 719</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Leu18Phe          </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >21621</td><td>C    </td><td>A         </td><td>ACC-AAC       </td><td>T-N        </td><td > 708</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Thr20Asn          </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >21638</td><td>C    </td><td>T         </td><td>CCT-TCT       </td><td>P-S        </td><td > 675</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Pro26Ser          </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >21974</td><td>G    </td><td>T         </td><td>GAT-TAT       </td><td>D-Y        </td><td >   8</td><td >      0.5 </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Asp138Tyr         </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >22132</td><td>G    </td><td>T         </td><td>AGG-AGT       </td><td>R-S        </td><td >   8</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Arg190Ser         </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >22812</td><td>A    </td><td>C         </td><td>AAG-ACG       </td><td>K-T        </td><td > 987</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Lys417Thr         </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >23525</td><td>C    </td><td>T         </td><td>CAT-TAT       </td><td>H-Y        </td><td >   2</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>His655Tyr         </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >24642</td><td>C    </td><td>T         </td><td>ACT-ATT       </td><td>T-I        </td><td >1670</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Thr1027Ile        </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >28167</td><td>G    </td><td>A         </td><td>GAA-AAA       </td><td>E-K        </td><td > 996</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF8       </td><td>Glu92Lys          </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td >28512</td><td>C    </td><td>G         </td><td>CCA-CGA       </td><td>P-R        </td><td >1289</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>N          </td><td>Pro80Arg          </td><td>P1Variant          </td></tr>
+            <tr><td>NC_045512.2</td><td > 3828</td><td>C    </td><td>T         </td><td>TCA-TTA       </td><td>S-L        </td><td > 955</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Ser1188Leu        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td > 5648</td><td>A    </td><td>C         </td><td>AAA-CAA       </td><td>K-Q        </td><td >1270</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Lys1795Gln        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >11287</td><td>G    </td><td>-TCTGGTTTT</td><td>.-.           </td><td>.-.        </td><td >2074</td><td >      0.92</td><td>disruptive_inframe_deletion</td><td>MODERATE           </td><td>ORF1ab     </td><td>Leu3674_Gly3676del</td><td>UKVariant          </td></tr>
+            <tr><td>NC_045512.2</td><td >17259</td><td>G    </td><td>T         </td><td>GAG-GAT       </td><td>E-D        </td><td >1739</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF1ab     </td><td>Glu5665Asp        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21614</td><td>C    </td><td>T         </td><td>CTT-TTT       </td><td>L-F        </td><td > 719</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Leu18Phe          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21621</td><td>C    </td><td>A         </td><td>ACC-AAC       </td><td>T-N        </td><td > 708</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Thr20Asn          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21638</td><td>C    </td><td>T         </td><td>CCT-TCT       </td><td>P-S        </td><td > 675</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Pro26Ser          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >21974</td><td>G    </td><td>T         </td><td>GAT-TAT       </td><td>D-Y        </td><td >   8</td><td >      0.5 </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Asp138Tyr         </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >22132</td><td>G    </td><td>T         </td><td>AGG-AGT       </td><td>R-S        </td><td >   8</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Arg190Ser         </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >22812</td><td>A    </td><td>C         </td><td>AAG-ACG       </td><td>K-T        </td><td > 987</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Lys417Thr         </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >23525</td><td>C    </td><td>T         </td><td>CAT-TAT       </td><td>H-Y        </td><td >   2</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>His655Tyr         </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >24642</td><td>C    </td><td>T         </td><td>ACT-ATT       </td><td>T-I        </td><td >1670</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>S          </td><td>Thr1027Ile        </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >28167</td><td>G    </td><td>A         </td><td>GAA-AAA       </td><td>E-K        </td><td > 996</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>ORF8       </td><td>Glu92Lys          </td><td>                   </td></tr>
+            <tr><td>NC_045512.2</td><td >28512</td><td>C    </td><td>G         </td><td>CCA-CGA       </td><td>P-R        </td><td >1289</td><td >      1   </td><td>missense_variant           </td><td>MODERATE           </td><td>N          </td><td>Pro80Arg          </td><td>                   </td></tr>
+            </tbody>
+        </table>
+        
+    </div>
+
+    <script>
+        $(document).ready( function () {
+            var table = $('#variants').DataTable({
+                orderCellsTop: true,
+                initComplete: function () {
+                    this.api().columns([1,2,3, 4, 5, 6, 7, 8,9,10,11,12]).every( function () {
+                        var column = this;
+                        var select = $('<select><option value=""></option></select>')
+                        .appendTo(  $('thead tr:eq(1) th:eq(' + this.index()  + ')') )
+                            .on( 'change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+                                column
+                                    .search( val ? '^'+val+'$' : '', true, false )
+                                    .draw();
+                            } );
+        
+                        column.data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                        } );
+                    } );
+                }
+            });
+        } );
+    </script>
+  </body>
+</html> 
